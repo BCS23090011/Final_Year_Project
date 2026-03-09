@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Customer Profile — Genshin Churn Study</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='nav.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <style>
+    /* Toggle tabs */
+    .profile-tabs {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 40px;
+      justify-content: center;
+    }
+    .ptab {
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 700;
+      font-size: 0.9rem;
+      padding: 12px 32px;
+      border-radius: 30px;
+      cursor: pointer;
+      border: 2px solid rgba(255,255,255,0.15);
+      background: rgba(255,255,255,0.05);
+      color: #B0BBFF;
+      transition: all 0.3s ease;
+      text-decoration: none;
+    }
+    .ptab.active-tab, .ptab:hover {
+      background: linear-gradient(135deg, #7C83FD, #96BAFF);
+      border-color: transparent;
+      color: white;
+      box-shadow: 0 4px 14px rgba(124,131,253,0.4);
+    }
+    /* Dashboard image card */
+    .dash-card {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 16px;
+      overflow: hidden;
+      margin-bottom: 36px;
+      transition: all 0.35s ease;
+    }
+    .dash-card:hover {
+      border-color: rgba(150,186,255,0.45);
+      box-shadow: 0 12px 36px rgba(0,0,0,0.35);
+      transform: translateY(-4px);
+    }
+    .dash-card img {
+      width: 100%;
+      display: block;
+    }
+    .dash-info {
+      padding: 24px 28px 28px;
+      display: flex;
+      gap: 28px;
+      flex-wrap: wrap;
+      align-items: flex-start;
+    }
+    .dash-info .dash-text { flex: 1; min-width: 220px; }
+    .dash-info h3 {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 1.15rem;
+      color: #FFD6E0;
+      margin: 0 0 10px;
+    }
+    .dash-info p {
+      font-size: 0.92rem;
+      color: #C0C8FF;
+      line-height: 1.72;
+      margin: 0 0 14px;
+    }
+    /* Findings row inside dash card */
+    .findings-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 6px;
+    }
+    .finding-pill {
+      background: rgba(124,131,253,0.15);
+      border: 1px solid rgba(124,131,253,0.3);
+      border-radius: 20px;
+      padding: 6px 14px;
+      font-size: 0.82rem;
+      color: #E0E7FF;
+      line-height: 1.4;
+    }
+    .finding-pill strong { color: #FFD6E0; }
+    /* Key number callout */
+    .kn-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      flex-shrink: 0;
+    }
+    .kn {
+      background: linear-gradient(135deg, rgba(124,131,253,0.18), rgba(150,186,255,0.1));
+      border: 1px solid rgba(124,131,253,0.3);
+      border-radius: 12px;
+      padding: 14px 18px;
+      text-align: center;
+      min-width: 90px;
+    }
+    .kn .kn-num {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 1.7rem;
+      font-weight: 800;
+      color: #96BAFF;
+      line-height: 1;
+    }
+    .kn .kn-label {
+      font-size: 0.75rem;
+      color: #8890C0;
+      margin-top: 5px;
+      line-height: 1.3;
+    }
+    /* Section dividers with label */
+    .section-sep {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin: 48px 0 36px;
+    }
+    .section-sep span {
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 800;
+      font-size: 1.5rem;
+      color: #FFD6E0;
+      white-space: nowrap;
+    }
+    .section-sep::before, .section-sep::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: rgba(255,255,255,0.1);
+    }
+    @media(max-width:700px){
+      .dash-info { flex-direction: column; }
+      .kn-row { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+
+{% include 'nav.html' %}
+
+<section class="page-hero">
+  <h1>Customer Profile</h1>
+  <p>Tableau-powered dashboards — who plays, who stays, who leaves, and what brings them back.</p>
+</section>
+
+<div class="page-container fade-in">
+
+  <div class="section-label">Tableau Dashboards</div>
+  <h2 class="section-title">Player Profile Overview</h2>
+  <p class="section-subtitle">
+    These dashboards visualise the raw survey data for both active and churned player populations —
+    serving as the descriptive foundation that informs all downstream ML modelling.
+  </p>
+
+  <!-- Tab selector -->
+  <div class="profile-tabs">
+    <a href="#active-section" class="ptab active-tab">🟢 Active Players (n=126)</a>
+    <a href="#churn-section" class="ptab">🔴 Churned Players (n=44)</a>
+  </div>
+
+  <!-- ===== ACTIVE PLAYERS ===== -->
+  <div id="active-section">
+    <div class="section-sep"><span>Active Player Dashboards</span></div>
+
+    <!-- Dashboard 1: Demographics -->
+    <div class="dash-card">
+      <img src="{{ url_for('static', filename='images/tableau/Demographic_Active.png') }}"
+           alt="Active player demographic dashboard — age, gender, play duration">
+      <div class="dash-info">
+        <div class="dash-text">
+          <h3>Dashboard 1 — Who Are They? (Demographics)</h3>
+          <p>
+            The active player base skews toward young adults (18–25) who have been playing for 3+ years.
+            A strong veteran cohort — 47% with 5+ years of playtime — suggests Genshin Impact 
+            has successfully retained a core long-term audience despite being a live-service game.
+          </p>
+          <div class="findings-pills">
+            <div class="finding-pill"><strong>47%</strong> — 5+ years playtime</div>
+            <div class="finding-pill"><strong>64%</strong> — Login every single day (7d)</div>
+            <div class="finding-pill"><strong>72%</strong> — Definitely intending to continue</div>
+            <div class="finding-pill"><strong>18–25</strong> — Dominant age group</div>
+          </div>
+        </div>
+        <div class="kn-row">
+          <div class="kn"><div class="kn-num">126</div><div class="kn-label">Active<br>Respondents</div></div>
+          <div class="kn"><div class="kn-num">81</div><div class="kn-label">Daily<br>Logins (7d)</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Dashboard 2: In-Game Behaviour -->
+    <div class="dash-card">
+      <img src="{{ url_for('static', filename='images/tableau/InGameDetail.png') }}"
+           alt="Active player in-game behaviour — event participation, task completion, Nod-Krai ratings">
+      <div class="dash-info">
+        <div class="dash-text">
+          <h3>Dashboard 2 — How Do They Play? (In-Game Behaviour)</h3>
+          <p>
+            Event participation, task completion, and Nod-Krai region satisfaction ratings 
+            reveal the engagement landscape. Players who complete all major activities 
+            show significantly higher retention intent — directly confirming the 
+            SHAP finding that event participation is the #1 retention predictor.
+            Among the six Nod-Krai dimensions, <strong>Combat scores the lowest</strong> across all play duration groups — 
+            a telling signal that players find the combat formula repetitive and formulaic:
+            new characters every patch, but the same underlying rotations and mechanics.
+            <br><br>
+            Notably, <strong>veteran players (3–5 years) rate Story and Atmosphere <em>higher</em> than newer players</strong> — 
+            the opposite of what repetition fatigue would predict.
+            This is explained by Nod-Krai's region design: the map is significantly more compact than older regions, 
+            making chest hunting and exploration far less time-consuming.
+            The reward-to-time ratio improves noticeably compared to sprawling regions like Sumeru or Fontaine,
+            meaning veterans — who have endured far worse exploration fatigue before — 
+            recognise Nod-Krai as a genuine step forward and rate it accordingly.
+          </p>
+          <div class="findings-pills">
+            <div class="finding-pill"><strong>59%</strong> — Complete ALL major events</div>
+            <div class="finding-pill"><strong>NodKrai Combat</strong> — rated <strong style="color:#FF9999;">lowest</strong> across all groups</div>
+            <div class="finding-pill">Veterans rate <strong>Story &amp; Atmosphere higher</strong> than newer players</div>
+            <div class="finding-pill">🗺️ Compact map = <strong>better reward-to-time ratio</strong> vs older regions</div>
+            <div class="finding-pill">Veterans see Nod-Krai as a <strong>step forward</strong> in region design</div>
+            <div class="finding-pill">Task completion ↑ = retention ↑ (SHAP confirmed)</div>
+          </div>
+        </div>
+        <div class="kn-row">
+          <div class="kn"><div class="kn-num">74</div><div class="kn-label">Complete All<br>Events</div></div>
+          <div class="kn"><div class="kn-num">4.1</div><div class="kn-label">NodKrai<br>Avg Rating</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Dashboard 3: Why Still Play -->
+    <div class="dash-card">
+      <img src="{{ url_for('static', filename='images/tableau/WhyStillPlay_WhatkeepThem.png') }}"
+           alt="Why active players stay — motivation drivers and desired improvements">
+      <div class="dash-info">
+        <div class="dash-text">
+          <h3>Dashboard 3 — Why Do They Stay? (Motivations &amp; Desires)</h3>
+          <p>
+            Character design (41 mentions) is the single biggest retention driver — 
+            players invest emotionally in characters, making new character releases 
+            a powerful re-engagement mechanism. World exploration (31) and 
+            content updates (27) follow, revealing that lore-driven players 
+            represent the most stable retention segment.
+            For desired improvements: generous rewards (43), free pulls (38), 
+            and better anniversary events (37) dominate — pointing directly 
+            to the monetisation system as the greatest source of friction.
+          </p>
+          <div class="findings-pills">
+            <div class="finding-pill">🏆 <strong>Character Design (41)</strong> — Top motivation</div>
+            <div class="finding-pill">🌍 World Exploration (31) — #2</div>
+            <div class="finding-pill">💎 <strong>Generous Rewards (43)</strong> — Most wanted improvement</div>
+            <div class="finding-pill">🎁 Free Pulls (38) — #2 desired improvement</div>
+          </div>
+        </div>
+        <div class="kn-row">
+          <div class="kn"><div class="kn-num">#1</div><div class="kn-label">Char Design<br>41 mentions</div></div>
+          <div class="kn"><div class="kn-num">#1</div><div class="kn-label">More Rewards<br>43 mentions</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== CHURNED PLAYERS ===== -->
+  <div id="churn-section">
+    <div class="section-sep"><span>Churned Player Dashboards</span></div>
+
+    <!-- Dashboard 4: Churn Demographics -->
+    <div class="dash-card">
+      <img src="{{ url_for('static', filename='images/tableau/Demographic-Churn.png') }}"
+           alt="Churned player demographic profile — age, gender, play duration, platform">
+      <div class="dash-info">
+        <div class="dash-text">
+          <h3>Dashboard 4 — Who Left? (Churn Demographics)</h3>
+          <p>
+            Churned players show a notably different demographic fingerprint from active players.
+            Mobile dominates as the platform of departure — suggesting mobile-specific UX friction 
+            (battery drain, controls, performance) may compound content-driven churn.
+            The churn population is segmented into three archetypes: 
+            <strong style="color:#FFD6E0;">Watching &amp; Waiting (~36%)</strong>, 
+            <strong style="color:#96BAFF;">Passively Churned (~41%)</strong>, and 
+            <strong style="color:#FF9999;">Permanently Lost (~23%)</strong>.
+          </p>
+          <div class="findings-pills">
+            <div class="finding-pill">📱 <strong>Mobile</strong> — Most common platform churned from</div>
+            <div class="finding-pill">36% — Still watching previews (Watching &amp; Waiting)</div>
+            <div class="finding-pill">23% — Will never return (Permanently Lost)</div>
+            <div class="finding-pill">50% — Still have friends playing</div>
+          </div>
+        </div>
+        <div class="kn-row">
+          <div class="kn"><div class="kn-num">44</div><div class="kn-label">Churned<br>Respondents</div></div>
+          <div class="kn"><div class="kn-num">3</div><div class="kn-label">Churn<br>Archetypes</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Dashboard 5: Top Churn Factors -->
+    <div class="dash-card">
+      <img src="{{ url_for('static', filename='images/tableau/TopFactorOfChurn.png') }}"
+           alt="Top factors causing player churn — ranked reasons for stopping play">
+      <div class="dash-info">
+        <div class="dash-text">
+          <h3>Dashboard 5 — Why Did They Leave? (Top Churn Factors)</h3>
+          <p>
+            The top churn reasons reveal two distinct patterns: <em>situational churn</em> 
+            (no time, study/work pressure) vs <em>design-driven churn</em> 
+            (exploration fatigue, story not engaging). Critically, most churn is 
+            <strong>not</strong> permanent — situational churners (the majority) remain 
+            potential re-engagement targets. Only the "permanently lost" archetype 
+            cites complete loss of interest.
+          </p>
+          <div class="findings-pills">
+            <div class="finding-pill">⏰ <strong>No time to play (22)</strong> — Top reason</div>
+            <div class="finding-pill">😴 Exploration too tiring (16) — #2</div>
+            <div class="finding-pill">📖 Story not attractive (13) — #3</div>
+            <div class="finding-pill">💸 Spending pressure (11) — #4</div>
+            <div class="finding-pill">Most churn is <strong>situational</strong>, not permanent</div>
+          </div>
+        </div>
+        <div class="kn-row">
+          <div class="kn"><div class="kn-num">22</div><div class="kn-label">No Time<br>(Top Reason)</div></div>
+          <div class="kn"><div class="kn-num">77%</div><div class="kn-label">Potentially<br>Recoverable</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Dashboard 6: Encourage Return -->
+    <div class="dash-card">
+      <img src="{{ url_for('static', filename='images/tableau/Encourage_Return.png') }}"
+           alt="Conditions that would encourage churned players to return">
+      <div class="dash-info">
+        <div class="dash-text">
+          <h3>Dashboard 6 — What Brings Them Back? (Return Conditions)</h3>
+          <p>
+            The return conditions data is highly actionable for game developers. 
+            Generous rewards (18) and free pulls (14) both point to the same root cause: 
+            players feel the reward-to-effort ratio is too low. 
+            Critically, the top active player <em>desire</em> (generous rewards, 43 mentions) 
+            <strong>exactly matches</strong> the top churn player <em>return condition</em> — 
+            this cross-group alignment is the strongest design recommendation in the entire study.
+          </p>
+          <div class="findings-pills">
+            <div class="finding-pill">🎁 <strong>Generous Rewards (18)</strong> — #1 return trigger</div>
+            <div class="finding-pill">✨ Free Pulls (14) — #2 return trigger</div>
+            <div class="finding-pill">🎉 Anniversary Events (14) — #3 return trigger</div>
+            <div class="finding-pill">⚠️ Active &amp; Churned want the <strong>same thing</strong></div>
+          </div>
+        </div>
+        <div class="kn-row">
+          <div class="kn"><div class="kn-num">18</div><div class="kn-label">Generous Rewards<br>(Return #1)</div></div>
+          <div class="kn"><div class="kn-num">✓</div><div class="kn-label">Aligned with<br>Active Desires</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Cross-group insight box -->
+  <div class="highlight-box" style="margin-top:16px;">
+    <p>
+      <strong>🔑 Cross-Group Design Insight:</strong> Active players' top desired improvement 
+      = <em>Generous Rewards (43 mentions)</em>. Churned players' top return condition 
+      = <em>Generous Rewards (18 mentions)</em>. The reward system is the single most critical 
+      intervention point — it simultaneously retains current players AND brings back churned ones. 
+      This is directly actionable for HoYoverse's content and monetisation teams.
+    </p>
+  </div>
+
+  <div style="text-align:center; margin-top:44px; display:flex; gap:14px; justify-content:center; flex-wrap:wrap;">
+    <a href="/result" class="btn">View ML Results →</a>
+    <a href="/community" class="btn-outline">Community Analysis →</a>
+  </div>
+
+</div>
+
+<footer>© 2025 Kelvin Kee Kwong Yew &nbsp;|&nbsp; FYP Delivery Platform &nbsp;|&nbsp; BCS23090011</footer>
+<script src="{{ url_for('static', filename='lightbox.js') }}"></script>
+</body>
+</html>

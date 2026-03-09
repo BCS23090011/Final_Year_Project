@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Limitations & Future Work — Genshin Churn Study</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='nav.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <style>
+    .limitation-card {
+      background: rgba(255,150,150,0.06);
+      border: 1px solid rgba(255,150,150,0.2);
+      border-left: 4px solid rgba(255,150,150,0.5);
+      border-radius: 12px;
+      padding: 26px 28px;
+      margin-bottom: 22px;
+      transition: all 0.3s ease;
+    }
+    .limitation-card:hover {
+      background: rgba(255,150,150,0.1);
+      transform: translateX(4px);
+    }
+    .limitation-card h3 {
+      font-family: 'Montserrat', sans-serif;
+      color: #FFD6E0;
+      font-size: 1.05rem;
+      margin: 0 0 12px;
+    }
+    .limitation-card p {
+      font-size: 0.92rem;
+      color: #C0C8FF;
+      line-height: 1.75;
+      margin: 0;
+    }
+    .future-card {
+      background: rgba(124,131,253,0.07);
+      border: 1px solid rgba(124,131,253,0.25);
+      border-left: 4px solid rgba(124,131,253,0.5);
+      border-radius: 12px;
+      padding: 26px 28px;
+      margin-bottom: 22px;
+      transition: all 0.3s ease;
+    }
+    .future-card:hover {
+      background: rgba(124,131,253,0.12);
+      transform: translateX(4px);
+    }
+    .future-card h3 {
+      font-family: 'Montserrat', sans-serif;
+      color: #96BAFF;
+      font-size: 1.05rem;
+      margin: 0 0 12px;
+    }
+    .future-card p {
+      font-size: 0.92rem;
+      color: #C0C8FF;
+      line-height: 1.75;
+      margin: 0;
+    }
+    .comparison-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.88rem;
+      margin: 20px 0;
+    }
+    .comparison-table th {
+      background: rgba(124,131,253,0.18);
+      color: #FFD6E0;
+      font-family: 'Montserrat', sans-serif;
+      padding: 11px 14px;
+      text-align: left;
+      border-bottom: 2px solid rgba(124,131,253,0.35);
+    }
+    .comparison-table td {
+      padding: 9px 14px;
+      color: #C0C8FF;
+      border-bottom: 1px solid rgba(255,255,255,0.07);
+    }
+    .comparison-table tr:hover td { background: rgba(255,255,255,0.04); }
+    .vs-bad  { color: #FFB3B3; }
+    .vs-good { color: #7DF7A0; }
+  </style>
+</head>
+<body>
+
+{% include 'nav.html' %}
+
+<section class="page-hero">
+  <h1>Limitations &amp; Future Work</h1>
+  <p>An honest assessment of what the data can and cannot tell us —<br>
+  and how the analytical framework scales to real-world applications.</p>
+</section>
+
+<div class="page-container fade-in">
+
+  <div class="highlight-box">
+    <p>
+      <strong>Important distinction:</strong> The analytical methods employed in this study — including 
+      Random Forest with SHAP explainability, K-Means clustering, and Self-Organising Maps — 
+      demonstrated valid and interpretable results within the scope of the survey dataset. 
+      <strong>The primary constraints lie not in the methodology but in data scale.</strong> 
+      Every limitation below traces back to a single root cause: a survey of n=170 players 
+      is inherently constrained relative to the scale of the modern gaming market.
+    </p>
+  </div>
+
+  <hr class="section-divider">
+
+  <!-- Limitations -->
+  <div class="section-label">Known Limitations</div>
+  <h2 class="section-title">Four Acknowledged Limitations</h2>
+
+  <div class="limitation-card">
+    <h3>⚠️ Limitation 1 — Churn Model Constrained to Demographic Features Only</h3>
+    <p>
+      The combined churn model was constrained to five shared demographic features 
+      (age, play years, gender, friend influence) because behavioural variables such as login frequency, 
+      spending, and event participation were only collected from active players. 
+      This limited the model's predictive depth, explaining the moderate AUC scores 
+      (LR=0.708, RF=0.648) and the counterintuitive result where LR outperformed RF — 
+      a pattern consistent with RF's known underperformance on low-dimensional feature spaces.
+    </p>
+  </div>
+
+  <div class="limitation-card">
+    <h3>⚠️ Limitation 2 — Survey Design Oversight: Missing Retrospective Behavioural Data</h3>
+    <p>
+      A limitation of the current survey design is the absence of retrospective behavioural 
+      questions for churned players (e.g., login frequency, spending, and event participation 
+      prior to disengagement). Without shared behavioural features across both groups, 
+      the combined churn model was constrained to demographic variables only. 
+      Future studies should include retrospective behavioural items in the churned player 
+      questionnaire to enable feature-aligned modelling across active and churned populations.
+    </p>
+  </div>
+
+  <div class="limitation-card">
+    <h3>⚠️ Limitation 3 — K=2 Clustering Lacks Granularity</h3>
+    <p>
+      Due to the limited sample size (n=126 active players) and the highly imbalanced 
+      retention target (91/126 intending to continue, only 11 at-risk), K=2 was selected 
+      to ensure minimum cluster viability. The resulting binary segmentation aligns with 
+      foundational high/low engagement distinctions in retention literature. 
+      Finer segmentation (K=3–5) requires a larger, more balanced dataset 
+      and is recommended for future work.
+    </p>
+  </div>
+
+  <div class="limitation-card">
+    <h3>⚠️ Limitation 4 — SOM Quality Above Ideal Thresholds</h3>
+    <p>
+      The SOM produced a Quantization Error of 1.6229 and Topographic Error of 0.4206, 
+      both exceeding ideal thresholds (QE &lt; 1.0, TE &lt; 0.2). This is attributable to 
+      the small sample size (n=126) relative to the 8×8 grid, which limits the density of 
+      training signals per neuron. The SOM results should therefore be interpreted as 
+      an exploratory topological visualisation rather than a definitive cluster structure.
+    </p>
+  </div>
+
+  <hr class="section-divider">
+
+  <!-- Survey vs Server Log -->
+  <div class="section-label">Root Cause Analysis</div>
+  <h2 class="section-title">Survey Data vs Server-Side Log Data</h2>
+  <p class="section-subtitle">
+    The most fundamental constraint is data source — not analytical method. 
+    Here is what changes when server-side log data replaces survey data.
+  </p>
+
+  <table class="comparison-table">
+    <thead>
+      <tr>
+        <th>Dimension</th>
+        <th>This Study (Survey)</th>
+        <th>Ideal Future (Server Log)</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Sample size</td>
+        <td class="vs-bad">n=126 / n=44</td>
+        <td class="vs-good">Millions of records per day</td>
+      </tr>
+      <tr>
+        <td>Behavioural data</td>
+        <td class="vs-bad">Player self-report (subjective)</td>
+        <td class="vs-good">Objective ground truth</td>
+      </tr>
+      <tr>
+        <td>Time dimension</td>
+        <td class="vs-bad">Single-point snapshot</td>
+        <td class="vs-good">Continuous time series</td>
+      </tr>
+      <tr>
+        <td>Class balance</td>
+        <td class="vs-bad">Severely imbalanced (at-risk: 11/126)</td>
+        <td class="vs-good">Natural distribution, controllable sampling</td>
+      </tr>
+      <tr>
+        <td>Real-time prediction</td>
+        <td class="vs-bad">Not possible</td>
+        <td class="vs-good">Live churn probability scores</td>
+      </tr>
+      <tr>
+        <td>Self-report bias</td>
+        <td class="vs-bad">Memory bias, social desirability bias</td>
+        <td class="vs-good">Eliminated — actual clicks recorded</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <hr class="section-divider">
+
+  <!-- Future Work -->
+  <div class="section-label">Future Directions</div>
+  <h2 class="section-title">How This Framework Scales</h2>
+
+  <div class="future-card">
+    <h3>🚀 Priority 1 — Server-Side Log Data Integration</h3>
+    <p>
+      The most significant avenue for future improvement lies in replacing survey-based 
+      self-reported data with server-side behavioural logs. Log data would provide 
+      objective, high-frequency records of login patterns, session duration, in-game spending, 
+      and event participation — eliminating self-report bias and enabling temporal feature 
+      engineering (e.g., 30-day login trend, consecutive days played). 
+      With sufficient log data, the class imbalance problem would be substantially reduced, 
+      enabling reliable identification of at-risk players and real-time churn intervention pipelines.
+    </p>
+  </div>
+
+  <div class="future-card">
+    <h3>🚀 Priority 2 — Retrospective Survey Items for Churned Players</h3>
+    <p>
+      Adding retrospective behavioural questions to the churned player survey — specifically 
+      asking about login frequency, spending habits, and event participation <em>before</em> 
+      disengagement — would enable feature-aligned modelling across both groups. 
+      This would dramatically improve the combined churn model and unlock cross-group SHAP comparisons.
+    </p>
+  </div>
+
+  <div class="future-card">
+    <h3>🚀 Priority 3 — Larger Sample for Finer Segmentation</h3>
+    <p>
+      With n ≥ 500 active players, K-Means segmentation at K=3–5 would be viable, 
+      enabling more granular player persona development. A balanced sample with 
+      sufficient at-risk players (ideally n ≥ 50 per class) would also resolve 
+      the Class 0 identification failure that limited this study.
+    </p>
+  </div>
+
+  <div class="future-card">
+    <h3>🚀 Priority 4 — Real-Time Churn Intervention Pipeline</h3>
+    <p>
+      The ideal production system: Server log data feeds a continuously retrained 
+      RF+SHAP model. Each player receives a daily churn probability score. 
+      When a player's score crosses a threshold, a personalised re-engagement trigger fires 
+      (push notification, in-game reward, limited event access) — 
+      targeting the specific features SHAP identifies as that player's primary churn risk drivers.
+    </p>
+  </div>
+
+  <div style="text-align:center; margin-top:40px;">
+    <a href="/about" class="btn">Meet the Researcher →</a>
+  </div>
+
+</div>
+
+<footer>© 2025 Kelvin Kee Kwong Yew &nbsp;|&nbsp; FYP Delivery Platform &nbsp;|&nbsp; BCS23090011</footer>
+<script src="{{ url_for('static', filename='lightbox.js') }}"></script>
+</body>
+</html>

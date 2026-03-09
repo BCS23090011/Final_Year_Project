@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Results — Genshin Churn Study</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='nav.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <style>
+    /* Tab navigation */
+    .tab-nav {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 36px;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      padding-bottom: 16px;
+    }
+    .tab-btn {
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.12);
+      color: #B0BBFF;
+      font-family: 'Poppins', sans-serif;
+      font-weight: 600;
+      font-size: 0.85rem;
+      padding: 9px 20px;
+      border-radius: 30px;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      text-decoration: none;
+    }
+    .tab-btn:hover, .tab-btn.active {
+      background: rgba(124,131,253,0.2);
+      border-color: #7C83FD;
+      color: #E0E7FF;
+    }
+    /* Metric Table */
+    .metric-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+      margin: 16px 0 28px;
+    }
+    .metric-table th {
+      background: rgba(124,131,253,0.18);
+      color: #FFD6E0;
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 700;
+      padding: 11px 14px;
+      text-align: left;
+      border-bottom: 2px solid rgba(124,131,253,0.35);
+    }
+    .metric-table td {
+      padding: 9px 14px;
+      color: #C0C8FF;
+      border-bottom: 1px solid rgba(255,255,255,0.07);
+    }
+    .metric-table tr:hover td { background: rgba(255,255,255,0.04); }
+    .good  { color: #7DF7A0; font-weight: 700; }
+    .warn  { color: #FFD6E0; font-weight: 700; }
+    .bad   { color: #FF9999; font-weight: 700; }
+  </style>
+</head>
+<body>
+
+{% include 'nav.html' %}
+
+<section class="page-hero">
+  <h1>Results</h1>
+  <p>Machine learning findings across clustering, prediction, and explainability —<br>
+  organised by the three study objectives.</p>
+</section>
+
+<div class="page-container fade-in">
+
+  <!-- Tab Navigation -->
+  <div class="tab-nav">
+    <a href="#objective1" class="tab-btn active">O1 — Clustering & Segmentation</a>
+    <a href="#objective2" class="tab-btn">O2 — SHAP & Key Drivers</a>
+    <a href="#objective3" class="tab-btn">O3 — Model Evaluation</a>
+    <a href="#bridge" class="tab-btn">Bridge Analysis</a>
+  </div>
+
+  <!-- ============ OBJECTIVE 1 ============ -->
+  <div id="objective1">
+    <span class="obj-badge">Objective 1</span>
+    <div class="section-label">Unsupervised Learning</div>
+    <h2 class="section-title">Player Segmentation via Clustering</h2>
+    <p class="section-subtitle">
+      K-Means and Self-Organising Maps were applied to discover natural groupings among 
+      active and churned players without using any labels.
+    </p>
+
+    <div class="chart-grid">
+      <div class="chart-card">
+        <img src="{{ url_for('static', filename='images/kmeans/Chart01_K_Selection.png') }}" 
+             alt="Elbow method chart for optimal K selection">
+        <div class="chart-caption">
+          <h4>K Selection (Elbow Method)</h4>
+          <p>The Elbow Method was used to determine the optimal number of clusters. 
+          K=2 was selected for both active and churned datasets, representing the 
+          High Engagement vs Lower Engagement distinction.</p>
+        </div>
+      </div>
+      <div class="chart-card">
+        <img src="{{ url_for('static', filename='images/kmeans/Chart02_Active_KMeans.png') }}" 
+             alt="Active player K-Means clustering PCA visualisation">
+        <div class="chart-caption">
+          <h4>Active Player K-Means (K=2)</h4>
+          <p>PCA-reduced 2D visualisation of active player clusters. 
+          <strong>Cluster 0</strong>: Highly engaged, frequent login, high event participation. 
+          <strong>Cluster 1</strong>: Lower engagement, potential at-risk segment.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="chart-grid">
+      <div class="chart-card">
+        <img src="{{ url_for('static', filename='images/kmeans/Chart03_Churn_KMeans.png') }}" 
+             alt="Churned player K-Means clustering">
+        <div class="chart-caption">
+          <h4>Churned Player K-Means (K=2)</h4>
+          <p>Two distinct churned player segments emerge: one with higher return potential 
+          (still engaged with game content externally) and one with complete disengagement. 
+          Aligns with the three-archetype classification.</p>
+        </div>
+      </div>
+      <div class="chart-card">
+        <img src="{{ url_for('static', filename='images/kmeans/Chart04_Active_SOM.png') }}" 
+             alt="Active player Self-Organising Map">
+        <div class="chart-caption">
+          <h4>Active Player SOM (8×8)</h4>
+          <p>Self-Organising Map topology of active players. The SOM produced 
+          QE=1.6229 and TE=0.4206, above ideal thresholds — attributable to the 
+          small n=126 sample relative to the 64-node grid. 
+          Results are interpreted as exploratory topological visualisation.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="chart-grid">
+      <div class="chart-card">
+        <img src="{{ url_for('static', filename='images/kmeans/Chart05_Agreement_KMeans_SOM.png') }}" 
+             alt="Agreement between K-Means and SOM cluster assignments">
+        <div class="chart-caption">
+          <h4>K-Means vs SOM Agreement</h4>
+          <p>Cross-validation of clustering results. The agreement rate between 
+          K-Means and SOM cluster assignments provides mutual validation, 
+          confirming that the two-segment structure is robust across methods.</p>
+        </div>
+      </div>
+      <div class="chart-card">
+        <img src="{{ url_for('static', filename='images/kmeans/Chart06_Active_PerCluster_SHAP.png') }}" 
+             alt="Per-cluster SHAP values for active players">
+        <div class="chart-caption">
+          <h4>Active Per-Cluster SHAP Profiles</h4>
+          <p>SHAP feature importance broken down by K-Means cluster. 
+          This reveals <em>which features</em> drive retention risk within each segment — 
+          enabling cluster-specific intervention strategies for game developers.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="chart-full">
+      <img src="{{ url_for('static', filename='images/kmeans/Chart07_Churn_PerCluster_SHAP.png') }}" 
+           alt="Churned player per-cluster SHAP balance">
+      <div class="chart-caption">
+        <h4>Churned Per-Cluster SHAP Balance</h4>
+        <p>Feature attribution across churn clusters reveals different churn archetypes. 
+        Cluster differences in demographic and behavioural feature weights highlight 
+        distinct re-engagement strategies needed for each churn type.</p>
+      </div>
+    </div>
+  </div>
+
+  <hr class="section-divider">
+
+  <!-- ============ OBJECTIVE 2 ============ -->
+  <div id="objective2">
+    <span class="obj-badge">Objective 2</span>
+    <div class="section-label">SHAP Explainability</div>
+    <h2 class="section-title">Key Behavioural Drivers of Retention &amp; Churn</h2>
+    <p class="section-subtitle">
+      SHAP values reveal not just which features matter, but in which direction and with what magnitude.
+      These findings translate model outputs into actionable design recommendations.
+    </p>
+
+    <div class="chart-full">
+      <img src="{{ url_for('static', filename='images/shap/Chart_04_Retention_Correlation.png') }}" 
+           alt="Retention correlation heatmap">
+      <div class="chart-caption">
+        <h4>Retention Feature Correlation</h4>
+        <p>Correlation matrix of key behavioural features with the retention target. 
+        Event participation, login frequency, and task completion emerge as strongly correlated 
+        with retention intention — establishing the foundation for SHAP feature selection.</p>
+      </div>
+    </div>
+
+    <div class="chart-grid">
+      <div class="chart-card">
+        <img src="{{ url_for('static', filename='images/shap/Chart_05_RF_SHAP_Retention_Top10.png') }}" 
+             alt="RF SHAP top 10 retention features">
+        <div class="chart-caption">
+          <h4>RF SHAP: Top 10 Retention Features</h4>
+          <p>The 10 most important features for predicting retention. 
+          <strong>Event participation</strong> consistently ranks as the strongest signal, 
+          followed by login frequency and task completion.</p>
+        </div>
+      </div>
+      <div class="chart-card">
+        <img src="{{ url_for('static', filename='images/shap/Chart_12_RF_SHAP_Retention_Top15.png') }}" 
+             alt="RF SHAP top 15 retention features">
+        <div class="chart-caption">
+          <h4>RF SHAP: Top 15 Retention Features</h4>
+          <p>Extended view showing the top 15 features. Motivational factors 
+          (character design enjoyment, social play patterns) appear alongside 
+          behavioural engagement metrics, confirming a multi-dimensional retention structure.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="chart-grid">
+      <div class="chart-card">
+        <img src="{{ url_for('static', filename='images/shap/Chart_13_RF_SHAP_Retention_Signed.png') }}" 
+             alt="RF SHAP signed values for retention">
+        <div class="chart-caption">
+          <h4>RF SHAP: Directional Attribution (Retention)</h4>
+          <p>Signed SHAP values showing feature direction. High event participation 
+          <em>increases</em> retention probability; low quest completion 
+          <em>decreases</em> it. This directional insight is critical for targeted interventions.</p>
+        </div>
+      </div>
+      <div class="chart-card">
+        <img src="{{ url_for('static', filename='images/shap/Chart_15_SHAP_Beeswarm_Retention.png') }}" 
+             alt="SHAP beeswarm plot for retention">
+        <div class="chart-caption">
+          <h4>SHAP Beeswarm: Retention ⭐</h4>
+          <p>The beeswarm plot reveals the full distribution of individual SHAP values. 
+          A clear separation emerges: players with high event participation and login frequency 
+          cluster at positive SHAP values, while low-engagement players cluster negatively. 
+          <strong>This is the study's most informative single chart.</strong></p>
+        </div>
+      </div>
+    </div>
+
+    <div class="chart-full">
+      <img src="{{ url_for('static', filename='images/shap/Chart_14_SHAP_Beeswarm_Churn.png') }}" 
+           alt="SHAP beeswarm plot for churn">
+      <div class="chart-caption">
+        <h4>SHAP Beeswarm: Churn Direction</h4>
+        <p>SHAP beeswarm for the churn model. Feature distributions show that the combined 
+        churn model was constrained to 5 demographic features — explaining moderate AUC scores 
+        and the counterintuitive LR outperformance over RF.</p>
+      </div>
+    </div>
+
+    <div class="chart-grid">
+      <div class="chart-card">
+        <img src="{{ url_for('static', filename='images/shap/Chart_06_Churn_Reasons.png') }}" 
+             alt="Top reasons players churned">
+        <div class="chart-caption">
+          <h4>Top Churn Reasons</h4>
+          <p>Survey-reported reasons for stopping play. 
+          <strong>No time to play (22)</strong> leads, followed by exploration fatigue (16) 
+          and story not being attractive (13). Reveals churn is often situational, not permanent.</p>
+        </div>
+      </div>
+      <div class="chart-card">
+        <img src="{{ url_for('static', filename='images/shap/Chart_07_No_Return_Reasons.png') }}" 
+             alt="Reasons players would not return">
+        <div class="chart-caption">
+          <h4>No-Return Reasons</h4>
+          <p>Among the permanently churned archetype, reasons for never returning. 
+          Complete loss of interest and negative perceptions of the gacha monetisation 
+          system dominate — suggesting fundamentally different re-engagement barriers.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="chart-grid">
+      <div class="chart-card">
+        <img src="{{ url_for('static', filename='images/shap/Chart_08_Encourage_Return.png') }}" 
+             alt="Conditions that would encourage return">
+        <div class="chart-caption">
+          <h4>Encourage Return Conditions</h4>
+          <p>What would bring churned players back? 
+          <strong>Generous rewards (18)</strong> and <strong>Free pulls (14)</strong> dominate — 
+          directly pointing to reward system improvements as the primary re-engagement lever.</p>
+        </div>
+      </div>
+      <div class="chart-card">
+        <img src="{{ url_for('static', filename='images/shap/Chart_16_StopHoYoverse_Reasons.png') }}" 
+             alt="Reasons for stopping all HoYoverse games">
+        <div class="chart-caption">
+          <h4>Stop HoYoverse Reasons</h4>
+          <p>Among players who stopped all HoYoverse games, reasons include 
+          gacha spending pressure and content fatigue. Wuthering Waves (Kuro Games) 
+          was identified as the primary competitor absorbing churned Genshin players.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="chart-full">
+      <img src="{{ url_for('static', filename='images/shap/Chart_09_Key_Insights.png') }}" 
+           alt="Key insights panel summary">
+      <div class="chart-caption">
+        <h4>Key Insights Panel</h4>
+        <p>A consolidated summary of the most actionable findings from the SHAP and survey analysis, 
+        designed to translate research outputs into game developer recommendations.</p>
+      </div>
+    </div>
+  </div>
+
+  <hr class="section-divider">
+
+  <!-- ============ OBJECTIVE 3 ============ -->
+  <div id="objective3">
+    <span class="obj-badge">Objective 3</span>
+    <div class="section-label">Model Evaluation</div>
+    <h2 class="section-title">Standard Performance Metrics</h2>
+    <p class="section-subtitle">
+      Models evaluated on AUC-ROC, precision, recall, and F1-score. 
+      Results must be interpreted in the context of severe class imbalance and small sample size.
+    </p>
+
+    <div class="chart-full">
+      <img src="{{ url_for('static', filename='images/shap/Chart_03_Model_AUC.png') }}" 
+           alt="Model AUC ROC comparison">
+      <div class="chart-caption">
+        <h4>Model AUC Comparison (LR vs RF)</h4>
+        <p>LR AUC = 0.708 vs RF AUC = 0.648 on the churn prediction task. 
+        LR outperforming RF is consistent with RF's known underperformance 
+        in low-dimensional feature spaces (only 5 demographic features available).</p>
+      </div>
+    </div>
+
+    <div class="chart-full">
+      <img src="{{ url_for('static', filename='images/shap/Accuracy.png') }}" 
+           alt="Retention model classification report">
+      <div class="chart-caption">
+        <h4>Retention Model — Classification Report</h4>
+        <p>Overall accuracy = 0.97 (weighted F1 = 0.96). However, macro F1 = 0.79 and 
+        <strong>Class 0 (highest churn risk) F1 = 0.00</strong> — the model completely 
+        failed to identify the 2 most at-risk players due to extreme class imbalance.</p>
+      </div>
+    </div>
+
+    <div class="section-label" style="margin-top:36px;">Detailed Metrics</div>
+    <h3 style="font-family:'Montserrat',sans-serif; color:#FFD6E0; font-size:1.2rem; margin-bottom:16px;">Retention Model (5-Class)</h3>
+
+    <table class="metric-table">
+      <thead>
+        <tr>
+          <th>Class</th>
+          <th>Meaning</th>
+          <th>Precision</th>
+          <th>Recall</th>
+          <th>F1-Score</th>
+          <th>Support</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>Class 0</td><td>Highest churn risk</td><td class="bad">0.00</td><td class="bad">0.00</td><td class="bad">0.00</td><td>2</td></tr>
+        <tr><td>Class 1</td><td>High risk</td><td class="good">1.00</td><td class="good">1.00</td><td class="good">1.00</td><td>1</td></tr>
+        <tr><td>Class 2</td><td>Moderate risk</td><td class="good">1.00</td><td class="good">1.00</td><td class="good">1.00</td><td>8</td></tr>
+        <tr><td>Class 3</td><td>Low risk</td><td class="good">1.00</td><td class="warn">0.92</td><td class="good">0.96</td><td>24</td></tr>
+        <tr><td>Class 4</td><td>Intends to continue</td><td class="warn">0.96</td><td class="good">1.00</td><td class="good">0.98</td><td>91</td></tr>
+        <tr style="border-top:2px solid rgba(255,255,255,0.2);">
+          <td colspan="2"><strong>Accuracy</strong></td>
+          <td colspan="3" class="good"><strong>0.97</strong></td><td>126</td>
+        </tr>
+        <tr>
+          <td colspan="2">Macro Average</td>
+          <td>0.79</td><td>0.78</td><td class="warn">0.79</td><td>126</td>
+        </tr>
+        <tr>
+          <td colspan="2">Weighted Average</td>
+          <td class="good">0.95</td><td class="good">0.97</td><td class="good">0.96</td><td>126</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="highlight-box">
+      <p>
+        <strong>⚠️ Interpretation Warning:</strong> The 0.97 accuracy is misleading — 72% of samples are 
+        Class 4 (intending to continue), so a model biased toward the majority class scores high automatically. 
+        The <strong>macro-average F1 of 0.79</strong> is the true multi-class performance measure. 
+        Most critically, <strong>Class 0 F1 = 0.00</strong>: the model completely fails to identify 
+        the players most urgently needing intervention (n=2, too few for reliable classification). 
+        This is a direct consequence of the severe class imbalance inherent to the survey dataset.
+      </p>
+    </div>
+  </div>
+
+  <hr class="section-divider">
+
+  <!-- ============ BRIDGE ============ -->
+  <div id="bridge">
+    <span class="obj-badge">Bridge Analysis</span>
+    <div class="section-label">Connecting the Two Groups</div>
+    <h2 class="section-title">Active vs Churned — The Bridge Chart</h2>
+    <p class="section-subtitle">
+      The most unique contribution of this study: mapping churned player stated reasons 
+      to active player behavioural gradients — creating a predictive bridge between the two datasets.
+    </p>
+
+    <div class="chart-full">
+      <img src="{{ url_for('static', filename='images/shap/Chart_17_Bridge_ChurnVsActive.png') }}" 
+           alt="Bridge analysis connecting churn reasons to active player behaviour gradients">
+      <div class="chart-caption">
+        <h4>Bridge Analysis: Churn Reasons → Active Player Risk Gradients ⭐</h4>
+        <p>This chart is the methodological centrepiece of the study. 
+        By connecting what churned players cited as their reasons for leaving to the corresponding 
+        behavioural variables measured in the active player dataset, the model generates 
+        a risk gradient that can identify which currently-active players are exhibiting 
+        early-stage patterns matching known churn precursors. 
+        <strong>This is the primary tool for translating descriptive churn analysis into predictive warning signals.</strong></p>
+      </div>
+    </div>
+
+    <div style="text-align:center; margin-top:36px; display:flex; gap:14px; justify-content:center; flex-wrap:wrap;">
+      <a href="/community" class="btn">Community Analysis →</a>
+      <a href="/limitations" class="btn-outline">Limitations &amp; Future Work →</a>
+    </div>
+  </div>
+
+</div>
+
+<footer>© 2025 Kelvin Kee Kwong Yew &nbsp;|&nbsp; FYP Delivery Platform &nbsp;|&nbsp; BCS23090011</footer>
+<script src="{{ url_for('static', filename='lightbox.js') }}"></script>
+</body>
+</html>

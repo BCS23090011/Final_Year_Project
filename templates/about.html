@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>About — Genshin Churn Study</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='nav.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <style>
+    .about-hero-card {
+      background: linear-gradient(135deg, rgba(124,131,253,0.15), rgba(150,186,255,0.08));
+      border: 1px solid rgba(124,131,253,0.3);
+      border-radius: 20px;
+      padding: 44px 40px;
+      display: flex;
+      gap: 40px;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-bottom: 48px;
+    }
+    .avatar {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #7C83FD, #96BAFF);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 3rem;
+      flex-shrink: 0;
+      box-shadow: 0 8px 24px rgba(124,131,253,0.4);
+    }
+    .about-info h2 {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: #FFD6E0;
+      margin: 0 0 6px;
+    }
+    .about-info .subtitle {
+      font-size: 1rem;
+      color: #96BAFF;
+      margin-bottom: 12px;
+    }
+    .about-info .meta {
+      font-size: 0.88rem;
+      color: #8890C0;
+      line-height: 1.8;
+    }
+    .skill-tags { margin-top: 16px; }
+  </style>
+</head>
+<body>
+
+{% include 'nav.html' %}
+
+<section class="page-hero">
+  <h1>About</h1>
+  <p>The researcher behind the study.</p>
+</section>
+
+<div class="page-container fade-in">
+
+  <!-- Profile Card -->
+  <div class="about-hero-card">
+    <div class="avatar">🎓</div>
+    <div class="about-info">
+      <h2>Kelvin Kee Kwong Yew</h2>
+      <div class="subtitle">Bachelor of Computer Science (Hons)</div>
+      <div class="meta">
+        Student ID: BCS23090011<br>
+        University Technology Sarawak (UTS)<br>
+        Supervisor: Dr. Tanalachimi A/P Ganapathy<br>
+        Final Year Project — 2025/2026
+      </div>
+      <div class="skill-tags">
+        <span class="tag">Python</span>
+        <span class="tag">Machine Learning</span>
+        <span class="tag">SHAP</span>
+        <span class="tag">Scikit-learn</span>
+        <span class="tag">Tableau</span>
+        <span class="tag">Flask</span>
+        <span class="tag">NLP</span>
+        <span class="tag">Data Analytics</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- About the Project -->
+  <div class="section-label">Project Background</div>
+  <h2 class="section-title">Why Genshin Impact?</h2>
+  <p class="section-subtitle">
+    This FYP was motivated by a genuine interest in the intersection of game design, 
+    player psychology, and data science — areas where machine learning can deliver real business value.
+  </p>
+
+  <div class="content-block">
+    <h3>Research Motivation</h3>
+    <p>
+      Genshin Impact represents one of the most interesting case studies in the modern gaming industry: 
+      a free-to-play game that generated over USD $4 billion in its first year through a purely 
+      voluntary spending model. Understanding why some players convert, some remain free-to-play, 
+      and some churn entirely has both academic and commercial significance.
+      <br><br>
+      As a data science student, this project allowed me to apply the full ML pipeline — 
+      from survey design and feature engineering, through clustering and classification, 
+      to SHAP explainability — on a real-world problem with genuine complexity: 
+      imbalanced classes, multi-select responses, and the challenge of making black-box 
+      models interpretable to non-technical stakeholders.
+    </p>
+  </div>
+
+  <div class="content-block">
+    <h3>Technical Skills Applied</h3>
+    <p>
+      This project exercised a broad range of data science competencies:
+    </p>
+    <ul>
+      <li><strong>Survey instrument design</strong> — constructing valid, reliable questionnaire items for ML use</li>
+      <li><strong>Feature engineering</strong> — one-hot encoding, ordinal encoding, multi-select flattening (171 features)</li>
+      <li><strong>Unsupervised learning</strong> — K-Means, Self-Organising Maps, Elbow Method, PCA visualisation</li>
+      <li><strong>Supervised learning</strong> — Logistic Regression, Random Forest, AUC-ROC evaluation</li>
+      <li><strong>Explainability</strong> — SHAP beeswarm plots, directional attribution, feature importance ranking</li>
+      <li><strong>NLP &amp; community analytics</strong> — TF-IDF, K-Means topic modelling, LLM-assisted cluster labelling</li>
+      <li><strong>Visualisation</strong> — Matplotlib/Seaborn for analysis, Tableau for customer profiling</li>
+      <li><strong>Web development</strong> — Flask, HTML/CSS for this portfolio platform</li>
+    </ul>
+  </div>
+
+  <hr class="section-divider">
+
+  <!-- FYP Objectives Completion -->
+  <div class="section-label">FYP Delivery</div>
+  <h2 class="section-title">Objective Completion</h2>
+
+  <div class="cards-grid">
+    <div class="card">
+      <span class="obj-badge">Objective 1 ✅</span>
+      <h3>Hidden Pattern Discovery</h3>
+      <p>Completed via K-Means (K=2) and SOM (8×8) clustering on both active and churned datasets. 
+      Per-cluster SHAP profiles produced for segment-specific insight.</p>
+    </div>
+    <div class="card">
+      <span class="obj-badge">Objective 2 ✅</span>
+      <h3>Segmentation &amp; Prediction</h3>
+      <p>LR and RF classifiers built for both retention prediction (5-class) and 
+      churn prediction (binary). SHAP explainability applied with beeswarm plots and 
+      directional feature attribution.</p>
+    </div>
+    <div class="card">
+      <span class="obj-badge">Objective 3 ✅</span>
+      <h3>Standard Evaluation Metrics</h3>
+      <p>AUC-ROC (LR=0.708, RF=0.648), classification report (Accuracy=0.97, Macro F1=0.79), 
+      and class-level precision/recall/F1 documented with honest interpretation of 
+      class imbalance limitations.</p>
+    </div>
+  </div>
+
+  <div style="text-align:center; margin-top:40px;">
+    <a href="/" class="btn-outline">← Back to Home</a>
+    &nbsp;&nbsp;
+    <a href="/methodology" class="btn">View Methodology →</a>
+  </div>
+
+</div>
+
+<footer>© 2025 Kelvin Kee Kwong Yew &nbsp;|&nbsp; FYP Delivery Platform &nbsp;|&nbsp; BCS23090011</footer>
+<script src="{{ url_for('static', filename='lightbox.js') }}"></script>
+</body>
+</html>

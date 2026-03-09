@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Research Background — Genshin Churn Study</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='nav.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+{% include 'nav.html' %}
+
+<section class="page-hero">
+  <h1>Research Background</h1>
+  <p>Understanding player churn in free-to-play mobile games —<br>context, research questions, and study objectives.</p>
+</section>
+
+<div class="page-container fade-in">
+
+  <!-- Context -->
+  <div class="section-label">Background</div>
+  <h2 class="section-title">The Problem: Player Churn in F2P Games</h2>
+  <p class="section-subtitle">
+    Free-to-play (F2P) mobile games like Genshin Impact operate on a revenue model entirely dependent on 
+    player retention. With global mobile gaming revenue exceeding USD $92 billion in 2023, 
+    understanding why players disengage has become a critical business challenge.
+  </p>
+
+  <div class="cards-grid">
+    <div class="card">
+      <div class="card-icon">🎮</div>
+      <h3>Genshin Impact Context</h3>
+      <p>Developed by HoYoverse, Genshin Impact is a live-service RPG with a global monthly active user base 
+      exceeding 60 million. Revenue is driven entirely by gacha (randomised item draws), making 
+      player retention directly linked to financial performance.</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">📉</div>
+      <h3>The Churn Problem</h3>
+      <p>Player churn — when an active player stops engaging with a game — is costly to reverse. 
+      Acquiring new players costs 5–7× more than retaining existing ones. Understanding churn 
+      signals early allows developers to intervene before players disengage permanently.</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">🔍</div>
+      <h3>Gap in Existing Research</h3>
+      <p>Most churn prediction studies rely on server-log data available only to game companies. 
+      Survey-based research capturing players' subjective motivations, social influences, and 
+      content preferences remains underexplored — especially for Genshin Impact specifically.</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">🧠</div>
+      <h3>Explainability Gap</h3>
+      <p>Even when prediction models are built, many are "black boxes" that tell developers 
+      <em>who</em> will churn but not <em>why</em>. This project uses SHAP (SHapley Additive exPlanations) 
+      to bridge that gap and make model outputs actionable.</p>
+    </div>
+  </div>
+
+  <hr class="section-divider">
+
+  <!-- Research Questions -->
+  <div class="section-label">Research Questions</div>
+  <h2 class="section-title">What This Study Asks</h2>
+  <p class="section-subtitle">Three core questions guide the entire research design and analytical pipeline.</p>
+
+  <div class="content-block">
+    <h3>RQ1 — Behavioural Patterns</h3>
+    <p>What behavioural patterns and engagement characteristics distinguish active players who are at risk 
+    of churning from those who intend to continue playing Genshin Impact?</p>
+  </div>
+  <div class="content-block">
+    <h3>RQ2 — Predictive Features</h3>
+    <p>Which in-game and demographic features are the most significant predictors of player retention 
+    and churn, as identified through machine learning models with SHAP explainability?</p>
+  </div>
+  <div class="content-block">
+    <h3>RQ3 — Segmentation &amp; Community Signal</h3>
+    <p>How do unsupervised clustering methods (K-Means, SOM) reveal distinct player segments among 
+    active and churned populations, and how do community sentiment signals across platforms 
+    corroborate the survey findings?</p>
+  </div>
+
+  <hr class="section-divider">
+
+  <!-- Objectives -->
+  <div class="section-label">Study Objectives</div>
+  <h2 class="section-title">Three Research Objectives</h2>
+  <p class="section-subtitle">
+    Mapped directly to the research questions, these objectives define the measurable deliverables of this project.
+  </p>
+
+  <div class="cards-grid">
+    <div class="card">
+      <span class="obj-badge">Objective 1</span>
+      <h3>Discover Hidden Patterns</h3>
+      <p>Automatically discover hidden behavioural patterns among active and churned player groups 
+      through unsupervised clustering (K-Means, SOM) and visualise distinct player segments 
+      within the survey dataset.</p>
+    </div>
+    <div class="card">
+      <span class="obj-badge">Objective 2</span>
+      <h3>Predict &amp; Segment</h3>
+      <p>Build and evaluate supervised classification models (Logistic Regression, Random Forest) 
+      to predict player retention likelihood and churn probability, with SHAP explainability 
+      to identify the most influential behavioural drivers.</p>
+    </div>
+    <div class="card">
+      <span class="obj-badge">Objective 3</span>
+      <h3>Evaluate with Standard Metrics</h3>
+      <p>Assess model performance using standard evaluation metrics — AUC-ROC, precision, 
+      recall, F1-score — and contextualise results within the known limitations of 
+      the survey-scale dataset.</p>
+    </div>
+  </div>
+
+  <hr class="section-divider">
+
+  <!-- Player Groups -->
+  <div class="section-label">Study Populations</div>
+  <h2 class="section-title">Two Distinct Survey Groups</h2>
+  <p class="section-subtitle">
+    The study separates active and churned player populations to enable different analytical goals.
+  </p>
+
+  <div class="stats-row">
+    <div class="stat-box">
+      <div class="stat-number">126</div>
+      <div class="stat-label">Active Players<br><span style="color:#96BAFF;">Predictive Analysis</span></div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-number">44</div>
+      <div class="stat-label">Churned Players<br><span style="color:#FFD6E0;">Descriptive Analysis</span></div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-number">171</div>
+      <div class="stat-label">Engineered Features<br><span style="color:#96BAFF;">Active Dataset</span></div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-number">0.97</div>
+      <div class="stat-label">Retention Model<br><span style="color:#FFD6E0;">Accuracy (in-sample)</span></div>
+    </div>
+  </div>
+
+  <div class="highlight-box">
+    <p>
+      <strong>Active Players →</strong> Predictive analysis: identifying who is about to churn 
+      and which in-game behaviours serve as churn warning signals.<br><br>
+      <strong>Churned Players →</strong> Descriptive analysis: understanding why players left, 
+      what could bring them back, and mapping three distinct churn archetypes 
+      (Watching &amp; Waiting, Passively Churned, Permanently Lost).
+    </p>
+  </div>
+
+  <div style="text-align:center; margin-top:36px;">
+    <a href="/methodology" class="btn">Explore the Methodology →</a>
+  </div>
+
+</div>
+
+<footer>© 2025 Kelvin Kee Kwong Yew &nbsp;|&nbsp; FYP Delivery Platform &nbsp;|&nbsp; BCS23090011</footer>
+<script src="{{ url_for('static', filename='lightbox.js') }}"></script>
+</body>
+</html>

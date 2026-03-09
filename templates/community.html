@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Community Analysis — Genshin Churn Study</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='nav.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <style>
+    /* ── Arc section headers ── */
+    .arc-header {
+      display: flex; align-items: center; gap: 14px; margin: 44px 0 24px;
+    }
+    .arc-header::after { content:''; flex:1; height:1px; background:rgba(255,255,255,0.1); }
+    .arc-header h3 {
+      font-family:'Montserrat',sans-serif; font-size:1.2rem;
+      color:#FFD6E0; white-space:nowrap; margin:0;
+    }
+    .arc-badge {
+      background:linear-gradient(135deg,#7C83FD,#96BAFF); color:white;
+      font-size:0.72rem; font-weight:700; padding:4px 12px;
+      border-radius:20px; white-space:nowrap;
+    }
+
+    /* ── Image cards ── */
+    .img-card {
+      background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.1);
+      border-radius:14px; overflow:hidden; transition:all 0.3s ease;
+    }
+    .img-card:hover {
+      border-color:rgba(150,186,255,0.4);
+      box-shadow:0 10px 28px rgba(0,0,0,0.3);
+    }
+    .img-card img { width:100%; display:block; border-bottom:1px solid rgba(255,255,255,0.07); }
+    .img-card .cap { padding:14px 16px; }
+    .img-card .cap h4 {
+      font-family:'Montserrat',sans-serif; font-size:0.88rem;
+      color:#FFD6E0; margin:0 0 5px;
+    }
+    .img-card .cap p { font-size:0.8rem; color:#9BA5D0; line-height:1.6; margin:0; }
+
+    /* ── Full-width card ── */
+    .full-card {
+      background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.1);
+      border-radius:16px; overflow:hidden; margin-bottom:24px; transition:all 0.3s ease;
+    }
+    .full-card:hover {
+      border-color:rgba(150,186,255,0.4);
+      box-shadow:0 10px 28px rgba(0,0,0,0.3);
+    }
+    .full-card img { width:100%; display:block; }
+    .full-card .fcap { padding:20px 24px; }
+    .full-card .fcap h4 {
+      font-family:'Montserrat',sans-serif; font-size:1rem;
+      color:#FFD6E0; margin:0 0 8px;
+    }
+    .full-card .fcap p { font-size:0.88rem; color:#B0BBFF; line-height:1.65; margin:0 0 10px; }
+
+    /* ── Inline pills ── */
+    .pill {
+      display:inline-block; background:rgba(150,186,255,0.12);
+      border:1px solid rgba(150,186,255,0.25); color:#C0D0FF;
+      font-size:0.78rem; padding:4px 11px; border-radius:20px; margin:3px 4px 0 0;
+    }
+    .pill strong { color:#FFD6E0; }
+
+    /* ── Insight box ── */
+    .insight-box {
+      background:linear-gradient(135deg,rgba(124,131,253,0.12),rgba(150,186,255,0.07));
+      border:1px solid rgba(124,131,253,0.3); border-radius:14px;
+      padding:22px 26px; margin-bottom:24px;
+      display:flex; gap:14px; align-items:flex-start;
+    }
+    .insight-box .ib-icon { font-size:1.8rem; flex-shrink:0; margin-top:2px; }
+    .insight-box h4 {
+      font-family:'Montserrat',sans-serif; font-size:0.95rem;
+      color:#FFD6E0; margin:0 0 7px;
+    }
+    .insight-box p { font-size:0.88rem; color:#B0BBFF; line-height:1.65; margin:0; }
+
+    /* ── Grids ── */
+    .grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:22px; margin-bottom:24px; }
+    .grid-3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:20px; margin-bottom:24px; }
+    @media(max-width:900px) { .grid-3 { grid-template-columns:1fr 1fr; } }
+    @media(max-width:600px) { .grid-2,.grid-3 { grid-template-columns:1fr; } }
+  </style>
+</head>
+<body>
+{% include 'nav.html' %}
+
+<section class="page-hero">
+  <h1>Community Analysis</h1>
+  <p>4-platform public sentiment — organic player voice at scale,<br>
+     independently validating and extending the survey findings.</p>
+</section>
+
+<div class="page-container fade-in">
+
+  <!-- ═══════════════════════════════════════════════════
+       WHY COMMUNITY DATA
+  ════════════════════════════════════════════════════ -->
+  <div class="section-label">Secondary Data Source</div>
+  <h2 class="section-title">Survey + Community = Complete Picture</h2>
+  <p class="section-subtitle">
+    Survey data captures what players <em>choose</em> to report. Community data captures
+    what players post <em>organically</em> — unprompted and unfiltered.
+    Across three independent platforms, the same friction points surface repeatedly,
+    removing the possibility that any single platform's culture is distorting the signal.
+  </p>
+
+  <div class="stats-row">
+    <div class="stat-box"><div class="stat-number">3</div><div class="stat-label">Platforms<br>Analysed</div></div>
+    <div class="stat-box"><div class="stat-number">TF-IDF</div><div class="stat-label">Text<br>Vectorisation</div></div>
+    <div class="stat-box"><div class="stat-number">K-Means</div><div class="stat-label">Theme<br>Clustering</div></div>
+    <div class="stat-box"><div class="stat-number">LLM</div><div class="stat-label">Post-hoc<br>Labelling</div></div>
+  </div>
+
+  <div class="highlight-box">
+    <p>
+      <strong>Method:</strong> Community text was vectorised using TF-IDF, then clustered with K-Means
+      to surface dominant discussion themes without manual annotation.
+      Cluster labels were assigned post-hoc by an LLM acting as an interpretation layer —
+      combining statistical rigour with human-readable output.
+    </p>
+  </div>
+
+  <hr class="section-divider">
+
+  <!-- ═══════════════════════════════════════════════════
+       OVERVIEW CHARTS
+  ════════════════════════════════════════════════════ -->
+  <div class="section-label">Platform Overview</div>
+  <h2 class="section-title">Engagement &amp; Churn Signals Across Platforms</h2>
+
+  <!-- Dashboard (full width) -->
+  <div class="full-card">
+    <img src="{{ url_for('static', filename='images/community/Chart6_Dashboard.png') }}"
+         alt="Integrated 4-platform community analysis dashboard">
+    <div class="fcap">
+      <h4>Integrated 4-Platform Dashboard ⭐</h4>
+      <p>
+        A unified view combining Google Play rating trends (EN &amp; ZH), YouTube comment volume, and Bilibili (ZH) and HoYolab (EN) engagement into one dashboard. 
+        The most striking pattern: <strong style="color:#FFD6E0;">every metric dips in sync</strong> 
+        whenever a patch cycle ends and no new content arrives — confirming that Genshin Impact's 
+        retention is driven by a content-refresh loop rather than intrinsic stickiness. 
+        When content stops, players stop.
+      </p>
+      <span class="pill">Google Play ratings</span>
+      <span class="pill">YouTube comments (official + UGC)</span>
+      <span class="pill">Bilibili (ZH)</span>
+      <span class="pill">HoYolab (EN)</span>
+      <span class="pill"><strong>Patch-synchronised dips</strong></span>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <!--  -->
+    <div class="img-card">
+      <img src="{{ url_for('static', filename='images/community/Chart1_GooglePlay_Score_Version.png') }}"
+           alt="Google Play average rating tracked by version patch">
+      <div class="cap">
+        <h4>Google Play Score by Version (EN &amp; ZH Reviews)</h4>
+        <p>
+          Average app store rating plotted against each major version.
+          Ratings dip most sharply around versions where the <strong>resin (stamina) cap</strong>
+          and <strong>banner value</strong> were criticised — the exact same friction
+          points the survey's churned players cited (spending pressure, reward scarcity).
+          High-rated versions consistently coincide with anniversary or large free-pull events.
+        </p>
+      </div>
+    </div>
+
+    <!--  -->
+    <div class="img-card">
+      <img src="{{ url_for('static', filename='images/community/Chart2_4Platform_Churn_Signal.png') }}"
+           alt="4-platform churn signal — engagement volume trend over time">
+      <div class="cap">
+        <h4>4-Platform Churn Signal Over Time</h4>
+        <p>
+          Engagement volume tracked across all three platforms from the Natlan to Luna arcs.
+          The downward trend across <em>independent</em> platforms rules out single-platform bias —
+          this is a genuine community-level disengagement signal.
+          The rate of decline accelerates in periods with no major story or character release,
+          consistent with the survey finding that <strong>content fatigue</strong> is a primary churn driver.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- full width -->
+  <div class="full-card">
+    <img src="{{ url_for('static', filename='images/community/Chart3_Engagement_Volume_Heatmap.png') }}"
+         alt="Engagement volume heatmap — platform by patch version period">
+    <div class="fcap">
+      <h4>Engagement Volume Heatmap (Platform × Version Period)</h4>
+      <p>
+        The heatmap visualises engagement intensity (darker = higher) across platforms and time.
+        Two patterns stand out clearly:
+        <br>• <strong style="color:#7DF7A0;">Bright cells</strong> align with 
+          new region launches (Natlan 5.0, Fontaine 4.0) and anniversary events — 
+          confirming that <em>new characters and exploration content</em> are the primary re-engagement hooks.
+        <br>• <strong style="color:#FFD6E0;">Dark cells</strong> (low engagement) cluster in 
+          the final weeks of each 6-week patch cycle, when rerun banners dominate and 
+          no new story quests are available — directly mapping to the top churn reason: 
+          <em>"exploration feels tiring / nothing new to do."</em>
+      </p>
+      <span class="pill">New region launch = instant spike</span>
+      <span class="pill"><strong>Patch-end fatigue = consistent drop</strong></span>
+      <span class="pill">Anniversary = strongest peak across all platforms</span>
+    </div>
+  </div>
+
+  <hr class="section-divider">
+
+  <!-- ═══════════════════════════════════════════════════
+       NEGATIVE SENTIMENT
+  ════════════════════════════════════════════════════ -->
+  <div class="section-label">Negative Sentiment Mining</div>
+  <h2 class="section-title">What the Community Complains About</h2>
+  <p class="section-subtitle">
+    Top negative keywords extracted from reviews and comments reveal the friction points 
+    players feel strongly enough to write about publicly.
+  </p>
+
+  <div class="grid-2">
+    <!--  -->
+    <div class="img-card">
+      <img src="{{ url_for('static', filename='images/community/Chart4_GooglePlay_Neg_Keywords.png') }}"
+           alt="Top negative keywords from English Google Play reviews">
+      <div class="cap">
+        <h4>Google Play: Top Negative Keywords (English &amp; Chinese)</h4>
+        <p>
+          The most frequent negative terms in English-language reviews cluster around three themes:
+          <strong>gacha cost</strong> (pull rates, primogem scarcity), 
+          <strong>progression barriers</strong> (resin, AR grinding), and 
+          <strong>content repetition</strong> (same daily commissions, no endgame variety).
+          These map exactly onto the survey's churn reasons #3 and #4 (story not engaging, spending pressure).
+        </p>
+      </div>
+    </div>
+
+    <!--  -->
+    <div class="img-card">
+      <img src="{{ url_for('static', filename='images/community/Chart4b_Bilibili_Neg_Comments.png') }}"
+           alt="Top negative keywords from Bilibili comments (Chinese)">
+      <div class="cap">
+        <h4>Bilibili: Top Negative Comment Themes (ZH)</h4>
+        <p>
+          Bilibili (Chinese-language platform) surfaces the same core complaints as Google Play —
+          <strong>gacha pity costs</strong>, <strong>resin system limits</strong>, 
+          and <strong>banner character value</strong> dominate negative sentiment.
+          The cross-lingual alignment is striking: despite separate communities, 
+          separated by language and platform culture, the friction points are identical.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <div class="insight-box">
+    <div class="ib-icon">🌏</div>
+    <div>
+      <h4>Cross-Cultural Validation — The Reward System Is The Universal Pain Point</h4>
+      <p>
+        English-leaning platforms (Google Play EN, HoYolab) and the Chinese-language platform (Bilibili) both independently flag 
+        <strong style="color:#FFD6E0;">reward scarcity and gacha economics</strong> as the dominant negative signal.
+        This cross-cultural consistency removes regional sampling bias from the finding.
+        Combined with the survey result that <em>Generous Rewards (43 mentions)</em> is 
+        the #1 desired improvement for active players AND the #1 return condition for churned players —
+        the reward system is the single most evidence-backed intervention target in this study.
+      </p>
+    </div>
+  </div>
+
+  <hr class="section-divider">
+
+  <!-- ═══════════════════════════════════════════════════
+       TOPIC MODELLING
+  ════════════════════════════════════════════════════ -->
+  <div class="section-label">TF-IDF · K-Means · LLM Labelling</div>
+  <h2 class="section-title">Discussion Themes by Story Arc</h2>
+  <p class="section-subtitle">
+    Comparing what the community discusses arc-by-arc reveals how sentiment evolves 
+    alongside content — and where churn risk quietly builds.
+  </p>
+
+  <!-- ─── NATLAN ARC ─── -->
+  <div class="arc-header">
+    <h3>🌋 Natlan Arc</h3>
+    <span class="arc-badge">Versions 5.0 – 5.8</span>
+  </div>
+
+  <div class="grid-3">
+    <div class="img-card">
+      <img src="{{ url_for('static', filename='images/community/Chart5_YouTube_Natlan_Arc_48-58.png') }}"
+           alt="YouTube discussion theme clusters — Natlan Arc versions 5.0–5.8">
+      <div class="cap">
+        <h4>YouTube — Natlan Arc</h4>
+        <p>
+          Character hype and pull decision-making dominate. The largest clusters 
+          centre on specific characters (Mavuika, Citlali), 
+          with secondary clusters around world exploration reactions.
+          Negative clusters are present but smaller — mainly targeting primogem income rate.
+        </p>
+      </div>
+    </div>
+
+    <div class="img-card">
+      <img src="{{ url_for('static', filename='images/community/Chart5_Bilibili_Natlan_Arc_48-58.png') }}"
+           alt="Bilibili discussion theme clusters — Natlan Arc versions 5.0–5.8">
+      <div class="cap">
+        <h4>Bilibili — Natlan Arc</h4>
+        <p>
+          Combat design and character kit discussions are the largest positive cluster.
+          A distinct negative cluster around <strong>resin restrictions</strong> 
+          and <strong>daily cap frustration</strong> appears separately from character content —
+          indicating players enjoy the content but feel gated from playing it freely.
+        </p>
+      </div>
+    </div>
+
+    <div class="img-card">
+      <img src="{{ url_for('static', filename='images/community/Chart5_Hoyolab_Natlan_Arc_48-58.png') }}"
+           alt="HoYolab discussion theme clusters — Natlan Arc versions 5.0–5.8">
+      <div class="cap">
+        <h4>HoYolab — Natlan Arc</h4>
+        <p>
+          HoYolab is an English-language community platform where dedicated players share builds, lore theories, and fan content.
+          Discussion clusters centre on <strong>lore and storyline</strong> more 
+          than on gacha value — representing the survey's high-retention segment 
+          whose motivation is narrative investment, not reward optimisation.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <div class="insight-box">
+    <div class="ib-icon">🔥</div>
+    <div>
+      <h4>Natlan Arc — Cross-Platform Finding</h4>
+      <p>
+        Across all three platforms during Natlan, a consistent split emerges:
+        <strong style="color:#7DF7A0;">Character design, combat depth, and story</strong> 
+        drive positive engagement clusters; 
+        <strong style="color:#FFD6E0;">reward gates and gacha economics</strong> 
+        drive negative ones.
+        This mirrors the survey result precisely — character design is the #1 retention motivator (41 mentions) 
+        while reward improvements are the #1 desire (43 mentions).
+        The community data confirms this is not survey response bias; it is a genuine split in player experience.
+      </p>
+    </div>
+  </div>
+
+  <!-- ─── LUNA ARC ─── -->
+  <div class="arc-header">
+    <h3>🌙 Luna Arc</h3>
+    <span class="arc-badge">Versions 6.1 – 6.4</span>
+  </div>
+
+  <div class="grid-3">
+    <div class="img-card">
+      <img src="{{ url_for('static', filename='images/community/Chart5_YouTube_Luna_Arc_61-64.png') }}"
+           alt="YouTube discussion theme clusters — Luna Arc versions 6.1–6.4">
+      <div class="cap">
+        <h4>YouTube — Luna Arc</h4>
+        <p>
+          Anniversary and birthday event discussions form a new prominent cluster 
+          not seen in Natlan — reflecting community awareness of the 
+          <strong>anniversary reward cycle</strong> (the #3 return condition for churned players).
+          Character pull decisions remain dominant; a <strong>competitor comparison cluster</strong> 
+          (Wuthering Waves) appears for the first time.
+        </p>
+      </div>
+    </div>
+
+    <div class="img-card">
+      <img src="{{ url_for('static', filename='images/community/Chart5_Bilibili_Luna_Arc_61-64.png') }}"
+           alt="Bilibili discussion theme clusters — Luna Arc versions 6.1–6.4">
+      <div class="cap">
+        <h4>Bilibili — Luna Arc</h4>
+        <p>
+          Beta testing leaks and pre-release discussion occupy a larger cluster than in Natlan — 
+          indicating growing speculation around upcoming characters.
+          Crucially, a <strong>Genshin vs competitor</strong> comparison cluster emerges,
+          with Wuthering Waves mentioned repeatedly alongside spending comparisons.
+          This is the community-level leading indicator of the migration trend the survey captured.
+        </p>
+      </div>
+    </div>
+
+    <div class="img-card">
+      <img src="{{ url_for('static', filename='images/community/Chart5_Hoyolab_Luna_Arc_61-64.png') }}"
+           alt="HoYolab discussion theme clusters — Luna Arc versions 6.1–6.4">
+      <div class="cap">
+        <h4>HoYolab — Luna Arc</h4>
+        <p>
+          Community interaction and blessing posts dominate — showing that the 
+          committed English-speaking HoYolab cohort remains socially active regardless of content cycle position.
+          This segment represents the survey's <em>Watching &amp; Waiting</em> archetype (~36%): 
+          still engaged with the ecosystem even when not actively playing.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <div class="insight-box">
+    <div class="ib-icon">📈</div>
+    <div>
+      <h4>Arc Comparison — The Competitor Threat Grows</h4>
+      <p>
+        The most significant change from Natlan → Luna arc is the emergence of 
+        <strong style="color:#FFD6E0;">competitor comparison clusters</strong> on both YouTube and Bilibili.
+        Wuthering Waves did not appear as a discussion theme during Natlan; 
+        it now occupies a visible cluster in the Luna arc.
+        This is the community-level reflection of the survey finding that Wuthering Waves 
+        is the top destination for churned players.
+        The bridge between the two datasets is direct: 
+        active players showing low event participation (the #1 SHAP churn predictor) 
+        are the most likely to be exploring competitor alternatives — exactly the behaviour 
+        now appearing in organic community discussion.
+      </p>
+    </div>
+  </div>
+
+  <div style="text-align:center; margin-top:44px; display:flex; gap:14px; justify-content:center; flex-wrap:wrap;">
+    <a href="/result" class="btn-outline">← ML Results</a>
+    <a href="/limitations" class="btn">Limitations &amp; Future Work →</a>
+  </div>
+
+</div><!-- end page-container -->
+
+<footer>© 2025 Kelvin Kee Kwong Yew &nbsp;|&nbsp; FYP Delivery Platform &nbsp;|&nbsp; BCS23090011</footer>
+
+<script src="{{ url_for('static', filename='lightbox.js') }}"></script>
+</body>
+</html>

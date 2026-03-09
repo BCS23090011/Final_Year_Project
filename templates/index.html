@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Player Behaviour & Churn Prediction — Genshin Impact</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='nav.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='index.css') }}">
+</head>
+<body>
+
+{% include 'nav.html' %}
+
+<!-- Hero -->
+<section class="hero">
+  <div class="hero-badge">FYP Research · BCS23090011</div>
+  <h1>Player Behaviour &amp;<br>Churn Prediction</h1>
+  <p>A Data Analytics &amp; Machine Learning Case Study<br>Inspired by <em>Genshin Impact</em></p>
+  <p class="hero-meta">Kelvin Kee Kwong Yew &nbsp;·&nbsp; Supervisor: Dr. Tanalachimi A/P Ganapathy &nbsp;·&nbsp; UTS</p>
+  <div class="hero-btns">
+    <a href="#overview" class="btn-hero">Explore Project</a>
+    <a href="/methodology" class="btn-hero-outline">View Methodology</a>
+  </div>
+</section>
+
+<!-- Overview -->
+<section class="overview" id="overview">
+  <h2>Project Overview</h2>
+  <p class="overview-lead">
+    This project develops a machine learning framework to understand why Genshin Impact players churn
+    and how to predict at-risk players — combining survey analytics, unsupervised clustering, 
+    classification models, and SHAP explainability.
+  </p>
+
+  <div class="overview-cards">
+    <div class="overview-card">
+      <div class="card-num">01</div>
+      <h3>What</h3>
+      <p>A complete player analytics pipeline — from survey design to ML models — covering active player retention and churned player behaviour using n=170 survey respondents.</p>
+    </div>
+    <div class="overview-card">
+      <div class="card-num">02</div>
+      <h3>Why</h3>
+      <p>Traditional analytics fail to capture the dynamic, multi-dimensional nature of player engagement. Churn causes in free-to-play games remain poorly understood despite massive economic impact.</p>
+    </div>
+    <div class="overview-card">
+      <div class="card-num">03</div>
+      <h3>How</h3>
+      <p>CRISP-DM framework combining K-Means clustering, Self-Organising Maps, Logistic Regression, Random Forest, and SHAP explainability — with 4-platform community sentiment analysis.</p>
+    </div>
+  </div>
+
+  <a href="/research" class="btn" style="background:#FFD6E0;color:#4a4a4a;text-decoration:none;padding:13px 30px;border-radius:30px;font-family:'Montserrat',sans-serif;font-weight:700;font-size:0.9rem;transition:all 0.3s;display:inline-block;">
+    Read Research Background →
+  </a>
+</section>
+
+<!-- Tagline -->
+<section class="tagline">
+  <div class="tagline-text">T<span class="blue-char">E</span>CH</div>
+  <div class="tagline-text">OTA<span class="blue-char">K</span>US</div>
+  <div class="tagline-text"><span class="blue-char">S</span>AVE</div>
+  <div class="tagline-text">T<span class="blue-char">H</span>E</div>
+  <div class="tagline-text gradient-world">WORLD</div>
+</section>
+
+<!-- Quick Links -->
+<section class="quick-links">
+  <h2>Explore the Research</h2>
+  <div class="quick-grid">
+    <a href="/research" class="quick-card">
+      <div class="qc-icon">📖</div>
+      <div class="qc-label">Research Background</div>
+    </a>
+    <a href="/methodology" class="quick-card">
+      <div class="qc-icon">⚙️</div>
+      <div class="qc-label">Methodology</div>
+    </a>
+    <a href="/customer_profile" class="quick-card">
+      <div class="qc-icon">👥</div>
+      <div class="qc-label">Customer Profile</div>
+    </a>
+    <a href="/result" class="quick-card">
+      <div class="qc-icon">📊</div>
+      <div class="qc-label">ML Results</div>
+    </a>
+    <a href="/community" class="quick-card">
+      <div class="qc-icon">💬</div>
+      <div class="qc-label">Community Analysis</div>
+    </a>
+    <a href="/limitations" class="quick-card">
+      <div class="qc-icon">🔍</div>
+      <div class="qc-label">Limitations</div>
+    </a>
+    <a href="/about" class="quick-card">
+      <div class="qc-icon">👤</div>
+      <div class="qc-label">About</div>
+    </a>
+  </div>
+</section>
+
+<footer>© 2025 Kelvin Kee Kwong Yew &nbsp;|&nbsp; FYP Delivery Platform &nbsp;|&nbsp; BCS23090011</footer>
+
+<script src="{{ url_for('static', filename='lightbox.js') }}"></script>
+</body>
+</html>

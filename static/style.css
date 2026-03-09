@@ -1,0 +1,384 @@
+/* ============================================
+   SHARED STYLES — All inner pages
+   ============================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Lato:wght@400;700&family=Montserrat:wght@700;800&family=Poppins:wght@400;600;700&display=swap');
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Lato', sans-serif;
+  background: #2C2F4F;
+  color: white;
+  scroll-behavior: smooth;
+}
+
+/* ---- Page Hero Banner ---- */
+.page-hero {
+  padding: 100px 20px 60px;
+  background: linear-gradient(135deg, #7C83FD, #96BAFF);
+  text-align: center;
+}
+
+.page-hero h1 {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 2.4rem;
+  font-weight: 800;
+  margin-bottom: 12px;
+}
+
+.page-hero p {
+  font-size: 1.1rem;
+  max-width: 700px;
+  margin: 0 auto;
+  opacity: 0.92;
+  line-height: 1.7;
+}
+
+/* ---- Page Container ---- */
+.page-container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 50px 24px 80px;
+}
+
+/* ---- Section Headers ---- */
+.section-label {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: #96BAFF;
+  margin-bottom: 8px;
+}
+
+.section-title {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 1.9rem;
+  font-weight: 800;
+  color: #FFD6E0;
+  margin: 0 0 12px;
+}
+
+.section-subtitle {
+  font-size: 1rem;
+  color: #C0C8FF;
+  line-height: 1.7;
+  max-width: 800px;
+  margin-bottom: 36px;
+}
+
+.section-divider {
+  border: none;
+  border-top: 1px solid rgba(255,255,255,0.1);
+  margin: 56px 0;
+}
+
+/* ---- Content Block ---- */
+.content-block {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 14px;
+  padding: 32px 36px;
+  margin-bottom: 28px;
+  transition: all 0.3s ease;
+}
+
+.content-block:hover {
+  background: rgba(124,131,253,0.08);
+  border-color: rgba(124,131,253,0.25);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+}
+
+.content-block h3 {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 1.2rem;
+  color: #FFD6E0;
+  margin: 0 0 12px;
+}
+
+.content-block p, .content-block li {
+  font-size: 0.95rem;
+  color: #D0D7FF;
+  line-height: 1.75;
+  margin: 0;
+}
+
+.content-block ul {
+  padding-left: 20px;
+  margin: 8px 0 0;
+}
+
+.content-block li {
+  margin-bottom: 6px;
+}
+
+/* ---- Cards Grid ---- */
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 22px;
+  margin-bottom: 32px;
+}
+
+.card {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 14px;
+  padding: 28px 24px;
+  transition: all 0.3s ease;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  border-color: #FFD6E0;
+  box-shadow: 0 10px 28px rgba(0,0,0,0.25);
+}
+
+.card .card-icon {
+  font-size: 2rem;
+  margin-bottom: 12px;
+}
+
+.card h3 {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 1.05rem;
+  color: #FFD6E0;
+  margin: 0 0 10px;
+}
+
+.card p {
+  font-size: 0.9rem;
+  color: #C0C8FF;
+  line-height: 1.65;
+  margin: 0;
+}
+
+/* ---- Chart Container ---- */
+.chart-section {
+  margin-bottom: 52px;
+}
+
+.chart-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(480px, 1fr));
+  gap: 28px;
+  margin-top: 24px;
+}
+
+.chart-card {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 14px;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.chart-card:hover {
+  border-color: rgba(150,186,255,0.4);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+}
+
+.chart-card img {
+  width: 100%;
+  display: block;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+
+.chart-caption {
+  padding: 16px 20px;
+}
+
+.chart-caption h4 {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.95rem;
+  color: #FFD6E0;
+  margin: 0 0 6px;
+}
+
+.chart-caption p {
+  font-size: 0.85rem;
+  color: #B0BBFF;
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* ---- Full-width chart ---- */
+.chart-full {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 14px;
+  overflow: hidden;
+  margin-bottom: 28px;
+  transition: all 0.3s ease;
+}
+
+.chart-full:hover {
+  border-color: rgba(150,186,255,0.4);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+}
+
+.chart-full img {
+  width: 100%;
+  display: block;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+
+.chart-full .chart-caption {
+  padding: 20px 24px;
+}
+
+/* ---- Highlight Box ---- */
+.highlight-box {
+  background: linear-gradient(135deg, rgba(124,131,253,0.15), rgba(150,186,255,0.1));
+  border: 1px solid rgba(124,131,253,0.35);
+  border-radius: 12px;
+  padding: 24px 28px;
+  margin: 28px 0;
+}
+
+.highlight-box p {
+  font-size: 0.95rem;
+  color: #E0E7FF;
+  line-height: 1.75;
+  margin: 0;
+}
+
+.highlight-box strong {
+  color: #FFD6E0;
+}
+
+/* ---- Stats Row ---- */
+.stats-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin: 24px 0;
+}
+
+.stat-box {
+  flex: 1;
+  min-width: 140px;
+  background: rgba(124,131,253,0.12);
+  border: 1px solid rgba(124,131,253,0.25);
+  border-radius: 10px;
+  padding: 20px 16px;
+  text-align: center;
+}
+
+.stat-box .stat-number {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 2rem;
+  font-weight: 800;
+  color: #96BAFF;
+  line-height: 1;
+}
+
+.stat-box .stat-label {
+  font-size: 0.8rem;
+  color: #B0BBFF;
+  margin-top: 6px;
+  line-height: 1.4;
+}
+
+/* ---- Btn ---- */
+.btn {
+  background-color: #FFD6E0;
+  color: #4a4a4a;
+  text-decoration: none;
+  padding: 12px 28px;
+  border-radius: 30px;
+  font-family: 'Poppins', sans-serif;
+  font-weight: 700;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+  display: inline-block;
+}
+
+.btn:hover {
+  background-color: white;
+  color: #7C83FD;
+  box-shadow: 0 0 16px rgba(255,255,255,0.4);
+  transform: translateY(-2px);
+}
+
+.btn-outline {
+  background: transparent;
+  color: #FFD6E0;
+  border: 2px solid #FFD6E0;
+  text-decoration: none;
+  padding: 10px 26px;
+  border-radius: 30px;
+  font-family: 'Poppins', sans-serif;
+  font-weight: 700;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+  display: inline-block;
+}
+
+.btn-outline:hover {
+  background: #FFD6E0;
+  color: #4a4a4a;
+  transform: translateY(-2px);
+}
+
+/* ---- Tag Badges ---- */
+.tag {
+  display: inline-block;
+  background: rgba(124,131,253,0.2);
+  border: 1px solid rgba(124,131,253,0.4);
+  color: #96BAFF;
+  font-size: 0.78rem;
+  font-weight: 700;
+  padding: 4px 12px;
+  border-radius: 20px;
+  margin: 3px 4px 3px 0;
+}
+
+/* ---- Objective Badge ---- */
+.obj-badge {
+  display: inline-block;
+  background: linear-gradient(135deg, #7C83FD, #96BAFF);
+  color: white;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 4px 12px;
+  border-radius: 20px;
+  margin-bottom: 10px;
+}
+
+/* ---- Footer ---- */
+footer {
+  padding: 28px 0;
+  font-size: 0.88rem;
+  color: #8890C0;
+  background: rgba(0,0,0,0.2);
+  border-top: 1px solid rgba(255,255,255,0.08);
+  text-align: center;
+}
+
+/* ---- Animations ---- */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.fade-in {
+  animation: fadeInUp 0.5s ease-out forwards;
+}
+
+/* ---- Responsive ---- */
+@media (max-width: 700px) {
+  .page-hero h1 { font-size: 1.7rem; }
+  .section-title { font-size: 1.5rem; }
+  .chart-grid { grid-template-columns: 1fr; }
+  .cards-grid { grid-template-columns: 1fr; }
+  .stats-row { flex-direction: column; }
+  .content-block { padding: 22px 18px; }
+  .page-container { padding: 36px 16px 60px; }
+}

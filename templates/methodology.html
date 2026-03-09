@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Methodology — Genshin Churn Study</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='nav.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <style>
+    /* Pipeline Steps */
+    .pipeline {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      margin: 32px 0;
+      position: relative;
+    }
+    .pipeline::before {
+      content: '';
+      position: absolute;
+      left: 28px;
+      top: 0;
+      bottom: 0;
+      width: 2px;
+      background: linear-gradient(to bottom, #7C83FD, #96BAFF, rgba(150,186,255,0.2));
+    }
+    .pipeline-step {
+      display: flex;
+      align-items: flex-start;
+      gap: 20px;
+      padding: 20px 0 20px 0;
+    }
+    .step-circle {
+      width: 56px;
+      height: 56px;
+      min-width: 56px;
+      background: linear-gradient(135deg, #7C83FD, #96BAFF);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 800;
+      font-size: 1.1rem;
+      color: white;
+      box-shadow: 0 4px 12px rgba(124,131,253,0.4);
+      position: relative;
+      z-index: 1;
+    }
+    .step-content {
+      flex: 1;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 12px;
+      padding: 20px 24px;
+      transition: all 0.3s ease;
+    }
+    .step-content:hover {
+      background: rgba(124,131,253,0.09);
+      border-color: rgba(124,131,253,0.3);
+      transform: translateX(4px);
+    }
+    .step-content h3 {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 1.05rem;
+      color: #FFD6E0;
+      margin: 0 0 8px;
+    }
+    .step-content p {
+      font-size: 0.92rem;
+      color: #C0C8FF;
+      line-height: 1.7;
+      margin: 0;
+    }
+    /* Table */
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 20px 0;
+      font-size: 0.9rem;
+    }
+    .data-table th {
+      background: rgba(124,131,253,0.2);
+      color: #FFD6E0;
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 700;
+      padding: 12px 16px;
+      text-align: left;
+      border-bottom: 2px solid rgba(124,131,253,0.4);
+    }
+    .data-table td {
+      padding: 10px 16px;
+      color: #C0C8FF;
+      border-bottom: 1px solid rgba(255,255,255,0.07);
+    }
+    .data-table tr:hover td {
+      background: rgba(255,255,255,0.04);
+    }
+    /* Two-col layout */
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 22px;
+      margin-bottom: 28px;
+    }
+    @media(max-width:700px) {
+      .two-col { grid-template-columns: 1fr; }
+      .pipeline::before { left: 22px; }
+      .step-circle { width: 44px; height: 44px; min-width: 44px; font-size: 0.9rem; }
+    }
+  </style>
+</head>
+<body>
+
+{% include 'nav.html' %}
+
+<section class="page-hero">
+  <h1>Methodology</h1>
+  <p>From survey design to machine learning —<br>a CRISP-DM guided analytical pipeline.</p>
+</section>
+
+<div class="page-container fade-in">
+
+  <!-- CRISP-DM -->
+  <div class="section-label">Framework</div>
+  <h2 class="section-title">CRISP-DM Research Framework</h2>
+  <p class="section-subtitle">
+    This study adopts the Cross-Industry Standard Process for Data Mining (CRISP-DM), 
+    a proven iterative framework that structures the research from problem understanding through to deployment. 
+    Each phase of the CRISP-DM cycle is mapped to a concrete deliverable in this project.
+  </p>
+
+  <div class="pipeline">
+    <div class="pipeline-step">
+      <div class="step-circle">1</div>
+      <div class="step-content">
+        <h3>Business Understanding</h3>
+        <p>Define the research problem: understanding player churn behaviour in Genshin Impact and building 
+        predictive models that can identify at-risk players before they disengage. Three research objectives 
+        (O1–O3) were formulated to guide the entire pipeline.</p>
+      </div>
+    </div>
+    <div class="pipeline-step">
+      <div class="step-circle">2</div>
+      <div class="step-content">
+        <h3>Data Understanding</h3>
+        <p>Primary data collection via a structured online survey distributed to active Genshin Impact players 
+        (n=126) and churned players (n=44). Survey items covered demographics, in-game behaviour, 
+        motivations, social influence, content satisfaction, and spending behaviour. 
+        Community data was additionally scraped from 3 platforms (Google Play Store, YouTube, and Bilibili/HoYolab).</p>
+      </div>
+    </div>
+    <div class="pipeline-step">
+      <div class="step-circle">3</div>
+      <div class="step-content">
+        <h3>Data Preparation</h3>
+        <p>Extensive feature engineering produced 171 features for the active player dataset and 83 for 
+        the churned player dataset. Multi-select survey responses were one-hot encoded. 
+        Ordinal Likert responses were encoded as ordered integers. 
+        A long-format file was created for multi-choice questions (Active_MultiSelect: 1,435 rows; 
+        Churn_MultiSelect: 459 rows).</p>
+      </div>
+    </div>
+    <div class="pipeline-step">
+      <div class="step-circle">4</div>
+      <div class="step-content">
+        <h3>Modelling</h3>
+        <p>Four complementary modelling approaches were applied: 
+        (i) K-Means clustering (K=2) on active and churned player datasets; 
+        (ii) Self-Organising Map (SOM, 8×8 grid) for topological visualisation of active players; 
+        (iii) Logistic Regression and Random Forest classifiers for churn and retention prediction; 
+        (iv) SHAP (SHapley Additive exPlanations) for model explainability and feature attribution.</p>
+      </div>
+    </div>
+    <div class="pipeline-step">
+      <div class="step-circle">5</div>
+      <div class="step-content">
+        <h3>Evaluation</h3>
+        <p>Models evaluated using AUC-ROC, precision, recall, F1-score, and classification reports. 
+        The retention model achieved 0.97 overall accuracy (weighted F1: 0.96), 
+        though macro F1 of 0.79 reflects class imbalance. 
+        The churn prediction model: LR AUC = 0.708, RF AUC = 0.648. 
+        K-Means cluster validity confirmed via Elbow Method. 
+        SOM quality assessed via Quantization Error (QE=1.6229) and Topographic Error (TE=0.4206).</p>
+      </div>
+    </div>
+    <div class="pipeline-step">
+      <div class="step-circle">6</div>
+      <div class="step-content">
+        <h3>Deployment</h3>
+        <p>Findings are presented through this interactive web portfolio — serving as the FYP prototype 
+        delivery platform. Results are contextualised with actionable recommendations for game developers 
+        on targeted re-engagement strategies and future data pipeline improvements.</p>
+      </div>
+    </div>
+  </div>
+
+  <hr class="section-divider">
+
+  <!-- Data Collection -->
+  <div class="section-label">Data Collection</div>
+  <h2 class="section-title">Survey Design &amp; Sampling</h2>
+  <p class="section-subtitle">
+    Two separate questionnaires were designed — one for active players and one for churned players — 
+    reflecting their different analytical roles in the study.
+  </p>
+
+  <div class="two-col">
+    <div class="content-block">
+      <h3>📋 Active Players Survey (n=126)</h3>
+      <p>Focus: <strong>Predictive analysis</strong> — identifying who is at risk of churning.</p>
+      <ul>
+        <li>Login frequency (7-day and 30-day)</li>
+        <li>Daily playtime &amp; exploration progress</li>
+        <li>Event participation &amp; task completion</li>
+        <li>Spiral Abyss engagement</li>
+        <li>Gacha spending behaviour</li>
+        <li>Nod-Krai content satisfaction (6 dimensions, 1–5 Likert)</li>
+        <li>Social influence (co-op, friend network)</li>
+        <li>Continuation intention (5-point scale)</li>
+      </ul>
+    </div>
+    <div class="content-block">
+      <h3>📋 Churned Players Survey (n=44)</h3>
+      <p>Focus: <strong>Descriptive analysis</strong> — understanding why players left and return conditions.</p>
+      <ul>
+        <li>Reasons for stopping play (multi-select)</li>
+        <li>Whether still watching game previews</li>
+        <li>Migration to other HoYoverse games</li>
+        <li>Friend influence on return decision</li>
+        <li>Conditions that would encourage return</li>
+        <li>Reasons for permanent disengagement</li>
+        <li>Platform of play before churning</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="highlight-box">
+    <p>
+      <strong>Important design note:</strong> The two surveys deliberately share only five demographic features 
+      (age, gender, play duration, friend influence). Behavioural variables such as login frequency, 
+      spending, and event participation were <em>only</em> collected from active players — 
+      a design limitation that constrained the combined churn model to demographic features only.
+    </p>
+  </div>
+
+  <hr class="section-divider">
+
+  <!-- Feature Engineering -->
+  <div class="section-label">Feature Engineering</div>
+  <h2 class="section-title">From Raw Responses to ML Features</h2>
+  <p class="section-subtitle">
+    Survey responses underwent systematic transformation to produce machine-learning ready datasets.
+  </p>
+
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>Transformation Type</th>
+        <th>Method</th>
+        <th>Example</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Multi-select encoding</td>
+        <td>One-hot encoding (binary columns per option)</td>
+        <td><code>StayMotivated_CharacterDesign = 1</code></td>
+      </tr>
+      <tr>
+        <td>Ordinal encoding</td>
+        <td>Ordered integer mapping</td>
+        <td>Login frequency: Daily→5, Weekly→4 … Rarely→1</td>
+      </tr>
+      <tr>
+        <td>Retention target</td>
+        <td>5-class ordinal label from "Continue next month" item</td>
+        <td>Definitely yes→4 … Definitely not→0</td>
+      </tr>
+      <tr>
+        <td>Likert scaling</td>
+        <td>Direct integer (1–5) for satisfaction items</td>
+        <td>NodKrai_Storyline: 1 (Very poor) to 5 (Excellent)</td>
+      </tr>
+      <tr>
+        <td>Churn binary label</td>
+        <td>Active (0) vs Churned (1) for combined model</td>
+        <td>Player_Status_Encoded</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="stats-row">
+    <div class="stat-box">
+      <div class="stat-number">171</div>
+      <div class="stat-label">Features<br>Active Dataset</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-number">83</div>
+      <div class="stat-label">Features<br>Churn Dataset</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-number">5</div>
+      <div class="stat-label">Shared Features<br>Combined Model</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-number">11</div>
+      <div class="stat-label">At-risk Players<br>(Continue_Score ≤ 2)</div>
+    </div>
+  </div>
+
+  <hr class="section-divider">
+
+  <!-- Models -->
+  <div class="section-label">Machine Learning Models</div>
+  <h2 class="section-title">Four Complementary Techniques</h2>
+  <p class="section-subtitle">
+    No single model is sufficient. This study combines unsupervised, supervised, and explainability 
+    approaches to answer the research questions from multiple angles.
+  </p>
+
+  <div class="cards-grid">
+    <div class="card">
+      <div class="card-icon">🔵</div>
+      <h3>K-Means Clustering</h3>
+      <p>Applied separately to active (K=2) and churned (K=2) player datasets. 
+      K selected via the Elbow Method. PCA used for 2D visualisation. 
+      Produces behavioural segment profiles for targeted intervention design.</p>
+      <br>
+      <span class="tag">Unsupervised</span>
+      <span class="tag">Objective 1</span>
+    </div>
+    <div class="card">
+      <div class="card-icon">🟣</div>
+      <h3>Self-Organising Map (SOM)</h3>
+      <p>8×8 grid applied to the active player dataset (n=126) for topological 
+      neighbourhood-preserving visualisation. Complementary to K-Means — 
+      agreement rate between SOM and K-Means cluster assignments validates both methods.</p>
+      <br>
+      <span class="tag">Unsupervised</span>
+      <span class="tag">Objective 1</span>
+    </div>
+    <div class="card">
+      <div class="card-icon">🟢</div>
+      <h3>Logistic Regression</h3>
+      <p>Linear classifier applied to both churn prediction (Active vs Churned) 
+      and retention prediction (5-class ordinal). Acts as a baseline interpretable model. 
+      Notably outperformed Random Forest on the churn task (AUC LR=0.708 vs RF=0.648) 
+      — a pattern expected with low-dimensional feature spaces.</p>
+      <br>
+      <span class="tag">Supervised</span>
+      <span class="tag">Objective 2 &amp; 3</span>
+    </div>
+    <div class="card">
+      <div class="card-icon">🟠</div>
+      <h3>Random Forest + SHAP</h3>
+      <p>Ensemble classifier providing non-linear modelling capability. 
+      SHAP (SHapley Additive exPlanations) applied post-hoc to identify 
+      feature-level importance with directional attribution — 
+      revealing not just <em>which</em> features matter, but <em>how</em> they influence predictions.</p>
+      <br>
+      <span class="tag">Supervised</span>
+      <span class="tag">Explainability</span>
+      <span class="tag">Objective 2 &amp; 3</span>
+    </div>
+  </div>
+
+  <hr class="section-divider">
+
+  <!-- Community -->
+  <div class="section-label">Secondary Data Source</div>
+  <h2 class="section-title">4-Platform Community Sentiment Analysis</h2>
+  <p class="section-subtitle">
+    To contextualise survey findings within the broader player community, public sentiment data was 
+    collected from three platforms and analysed using NLP and K-Means topic modelling.
+  </p>
+
+  <div class="two-col">
+    <div class="content-block">
+      <h3>Data Sources</h3>
+      <ul>
+        <li><strong>Google Play Store</strong> — App ratings &amp; review text in both English and Chinese (version-level score tracking)</li>
+        <li><strong>YouTube</strong> — Comments from official HoYoverse patch preview videos and user-generated content</li>
+        <li><strong>Bilibili / HoYolab</strong> — Comments from official HoYoverse uploads and user-generated content (Bilibili: Chinese-language; HoYolab: English-language)</li>
+      </ul>
+    </div>
+    <div class="content-block">
+      <h3>Analysis Methods</h3>
+      <ul>
+        <li><strong>K-Means on TF-IDF vectors</strong> — Topic clustering of community discussions</li>
+        <li><strong>LLM post-hoc labelling</strong> — Cluster labels generated by LLM as interpretation layer</li>
+        <li><strong>Engagement volume heatmap</strong> — Platform × version period cross-analysis</li>
+        <li><strong>Negative keyword extraction</strong> — Google Play (EN + ZH) &amp; Bilibili comment mining</li>
+        <li><strong>Version-level score tracking</strong> — Correlating content patches with Google Play rating drops</li>
+      </ul>
+    </div>
+  </div>
+
+  <div style="text-align:center; margin-top:40px;">
+    <a href="/result" class="btn">View Results →</a>
+    &nbsp;&nbsp;
+    <a href="/community" class="btn-outline">Community Analysis →</a>
+  </div>
+
+</div>
+
+<footer>© 2025 Kelvin Kee Kwong Yew &nbsp;|&nbsp; FYP Delivery Platform &nbsp;|&nbsp; BCS23090011</footer>
+<script src="{{ url_for('static', filename='lightbox.js') }}"></script>
+</body>
+</html>
