@@ -27,6 +27,10 @@ def result():
 def community():
     return render_template('community.html', active_page='community')
 
+@app.route('/recommendations')
+def recommendations():
+    return render_template('recommendations.html', active_page='recommendations')
+
 @app.route('/limitations')
 def limitations():
     return render_template('limitations.html', active_page='limitations')

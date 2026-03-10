@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Business Recommendations — Genshin Churn Study</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='nav.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <style>
+    /* ── Priority badge ── */
+    .priority {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-family: 'Montserrat', sans-serif; font-size: 0.7rem;
+      font-weight: 700; letter-spacing: 0.6px; text-transform: uppercase;
+      padding: 4px 12px; border-radius: 20px; margin-bottom: 14px;
+    }
+    .priority.high   { background: rgba(255,100,100,0.15); color: #FF8080; border: 1px solid rgba(255,100,100,0.3); }
+    .priority.medium { background: rgba(255,183,77,0.15);  color: #FFB74D; border: 1px solid rgba(255,183,77,0.3); }
+    .priority.low    { background: rgba(150,186,255,0.15); color: #96BAFF; border: 1px solid rgba(150,186,255,0.3); }
+
+    /* ── Rec card ── */
+    .rec-card {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 18px;
+      padding: 28px 30px;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    .rec-card::before {
+      content: '';
+      position: absolute; top: 0; left: 0;
+      width: 4px; height: 100%;
+      border-radius: 18px 0 0 18px;
+    }
+    .rec-card.high::before   { background: linear-gradient(180deg,#FF8080,#FF5252); }
+    .rec-card.medium::before { background: linear-gradient(180deg,#FFB74D,#FF8F00); }
+    .rec-card.low::before    { background: linear-gradient(180deg,#96BAFF,#7C83FD); }
+    .rec-card:hover {
+      border-color: rgba(150,186,255,0.3);
+      box-shadow: 0 12px 32px rgba(0,0,0,0.25);
+      transform: translateY(-2px);
+    }
+
+    /* ── Card header row ── */
+    .rec-header {
+      display: flex; align-items: flex-start; gap: 16px; margin-bottom: 14px;
+    }
+    .rec-icon {
+      font-size: 2rem; flex-shrink: 0; line-height: 1;
+      margin-top: 2px;
+    }
+    .rec-title-block { flex: 1; }
+    .rec-title {
+      font-family: 'Montserrat', sans-serif; font-size: 1.05rem;
+      font-weight: 800; color: #FFD6E0; margin: 0 0 6px;
+      line-height: 1.3;
+    }
+
+    /* ── Body text ── */
+    .rec-body {
+      font-family: 'Lato', sans-serif; font-size: 0.88rem;
+      color: #B0BBFF; line-height: 1.7; margin-bottom: 16px;
+    }
+    .rec-body strong { color: #D0D8FF; }
+    .rec-body em { color: #FFD6E0; font-style: normal; font-weight: 700; }
+
+    /* ── Evidence pills (data backing) ── */
+    .evidence-row {
+      display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px;
+    }
+    .ev-pill {
+      display: inline-flex; align-items: center; gap: 5px;
+      background: rgba(124,131,253,0.1); border: 1px solid rgba(124,131,253,0.25);
+      color: #C0C8FF; font-size: 0.76rem; font-family: 'Lato', sans-serif;
+      padding: 4px 12px; border-radius: 20px;
+    }
+    .ev-pill .ep-icon { font-size: 0.85rem; }
+
+    /* ── Competitor callout ── */
+    .competitor-box {
+      background: linear-gradient(135deg, rgba(255,100,100,0.08), rgba(124,131,253,0.08));
+      border: 1px solid rgba(255,120,120,0.25);
+      border-radius: 14px; padding: 20px 24px; margin: 10px 0 0;
+      display: flex; gap: 12px; align-items: flex-start;
+    }
+    .competitor-box .cb-icon { font-size: 1.5rem; flex-shrink: 0; }
+    .competitor-box p {
+      font-size: 0.85rem; color: #B0BBFF; line-height: 1.65; margin: 0;
+    }
+    .competitor-box strong { color: #FFB0B0; }
+
+    /* ── Grid layout ── */
+    .rec-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 22px;
+      margin-bottom: 32px;
+    }
+
+    /* ── Section separator with label ── */
+    .rec-section {
+      display: flex; align-items: center; gap: 14px;
+      margin: 48px 0 20px;
+    }
+    .rec-section::after { content:''; flex:1; height:1px; background:rgba(255,255,255,0.08); }
+    .rec-section-label {
+      font-family: 'Montserrat', sans-serif; font-size: 0.78rem;
+      font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase;
+      color: #7C83FD; white-space: nowrap;
+    }
+    .rec-section-icon { font-size: 1.2rem; }
+
+    /* ── Summary table ── */
+    .summary-table {
+      width: 100%; border-collapse: collapse;
+      font-family: 'Lato', sans-serif; font-size: 0.85rem;
+      margin-top: 10px;
+    }
+    .summary-table th {
+      font-family: 'Montserrat', sans-serif; font-size: 0.75rem;
+      font-weight: 700; letter-spacing: 0.8px; text-transform: uppercase;
+      color: #8890CC; padding: 10px 14px; border-bottom: 1px solid rgba(255,255,255,0.1);
+      text-align: left;
+    }
+    .summary-table td {
+      padding: 11px 14px; color: #C0C8FF;
+      border-bottom: 1px solid rgba(255,255,255,0.05); vertical-align: middle;
+    }
+    .summary-table tr:hover td { background: rgba(255,255,255,0.03); }
+    .summary-table .impact-high   { color: #FF8080; font-weight: 700; }
+    .summary-table .impact-medium { color: #FFB74D; font-weight: 700; }
+    .summary-table .impact-low    { color: #96BAFF; font-weight: 700; }
+
+    @media (max-width: 600px) {
+      .rec-card { padding: 20px 18px; }
+      .rec-header { gap: 12px; }
+      .rec-icon { font-size: 1.6rem; }
+      .rec-title { font-size: 0.95rem; }
+      .rec-body { font-size: 0.83rem; }
+      .competitor-box { flex-direction: column; gap: 8px; padding: 16px 14px; }
+      .summary-table { font-size: 0.78rem; }
+      .summary-table th, .summary-table td { padding: 9px 10px; }
+    }
+  </style>
+</head>
+<body>
+{% include 'nav.html' %}
+
+<section class="page-hero">
+  <h1>Business Action Recommendations</h1>
+  <p>Data-backed retention strategies derived from survey findings,<br>
+     ML model outputs, and cross-platform community signals.</p>
+</section>
+
+<div class="page-container fade-in">
+
+  <!-- Intro -->
+  <div class="section-label">Evidence-Based Strategy</div>
+  <h2 class="section-title">From Analysis to Action</h2>
+  <p class="section-subtitle">
+    Every recommendation below is directly traceable to a finding in this study —
+    survey data, SHAP feature importance, K-Means churn archetypes, or community sentiment signals.
+    These are not speculative suggestions; they are the logical operational responses
+    to the specific friction points this study identified.
+  </p>
+
+  <div class="stats-row">
+    <div class="stat-box"><div class="stat-number">9</div><div class="stat-label">Action<br>Items</div></div>
+    <div class="stat-box"><div class="stat-number">3</div><div class="stat-label">High<br>Priority</div></div>
+    <div class="stat-box"><div class="stat-number">4</div><div class="stat-label">Medium<br>Priority</div></div>
+    <div class="stat-box"><div class="stat-number">2</div><div class="stat-label">Long-term<br>Strategic</div></div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════
+       HIGH PRIORITY
+  ══════════════════════════════════════════════ -->
+  <div class="rec-section">
+    <span class="rec-section-icon">🔴</span>
+    <span class="rec-section-label">High Priority — Address Immediately</span>
+  </div>
+
+  <div class="rec-grid">
+
+    <!-- R1: Resin -->
+    <div class="rec-card high">
+      <div class="rec-header">
+        <div class="rec-icon">⚡</div>
+        <div class="rec-title-block">
+          <div class="priority high">🔴 High Priority</div>
+          <h3 class="rec-title">Reduce Daily Resin Requirement — From 160 to 120 or 90</h3>
+        </div>
+      </div>
+      <p class="rec-body">
+        The current system forces players to spend <strong>160 resin daily</strong> to efficiently
+        progress — a time commitment that directly clashes with a player base that is
+        growing older and busier.
+        The top churn reason in this study is <em>"No time to play" (22 mentions)</em>,
+        and the most requested improvement is <em>generous rewards (43 mentions)</em>.
+        Both point to the same root cause: the reward-to-time ratio is too demanding.
+        Reducing the daily resin cap to <strong>120 or 90</strong> would allow casual players
+        to feel "complete" without investing 40–60 minutes daily —
+        directly addressing the time pressure that is pushing players toward
+        faster-paced competitors like Honkai: Star Rail.
+      </p>
+      <div class="evidence-row">
+        <span class="ev-pill"><span class="ep-icon">📋</span> Survey: "No time" = #1 churn reason (22 mentions)</span>
+        <span class="ev-pill"><span class="ep-icon">📋</span> Survey: Generous rewards = #1 desired improvement (43 mentions)</span>
+        <span class="ev-pill"><span class="ep-icon">🌏</span> Community: Resin frustration = top negative keyword EN + ZH</span>
+        <span class="ev-pill"><span class="ep-icon">🤖</span> SHAP: Event participation = #1 retention predictor</span>
+      </div>
+    </div>
+
+    <!-- R2: Free pulls -->
+    <div class="rec-card high">
+      <div class="rec-header">
+        <div class="rec-icon">🎁</div>
+        <div class="rec-title-block">
+          <div class="priority high">🔴 High Priority</div>
+          <h3 class="rec-title">Introduce Free 10-Pull Per Version — Align with HoYoverse's Other Titles</h3>
+        </div>
+      </div>
+      <p class="rec-body">
+        Honkai: Star Rail and Zenless Zone Zero both provide a <strong>free 10-pull per version</strong>
+        as standard — a policy Genshin Impact has not adopted.
+        With churned players in this study citing <em>spending pressure</em> as a key departure reason,
+        and active players requesting <em>free pulls (38 mentions)</em> as their second-most desired improvement,
+        the absence of this feature is an increasingly visible disadvantage.
+        As community discussion increasingly compares Genshin unfavourably against
+        its own publisher's newer titles, not matching this baseline erodes perceived value
+        even for players who are not spending money.
+      </p>
+      <div class="evidence-row">
+        <span class="ev-pill"><span class="ep-icon">📋</span> Survey: Free pulls = #2 desired improvement (38 mentions)</span>
+        <span class="ev-pill"><span class="ep-icon">📋</span> Survey: Spending pressure = churn factor</span>
+        <span class="ev-pill"><span class="ep-icon">🌏</span> Community: Gacha cost = top negative cluster across all platforms</span>
+        <span class="ev-pill"><span class="ep-icon">⚔️</span> Competitor: HSR + ZZZ both provide free 10-pull per version</span>
+      </div>
+    </div>
+
+    <!-- R3: Anniversary -->
+    <div class="rec-card high">
+      <div class="rec-header">
+        <div class="rec-icon">🎂</div>
+        <div class="rec-title-block">
+          <div class="priority high">🔴 High Priority</div>
+          <h3 class="rec-title">Upgrade Anniversary Rewards — Free Limited 5★ Character, Weapon, or Monthly Card</h3>
+        </div>
+      </div>
+      <p class="rec-body">
+        Anniversary events are the <strong>single strongest re-engagement spike</strong>
+        visible in the community heatmap — surpassing even new region launches.
+        Yet the survey shows that churned players' <em>#3 return condition is "generous anniversary rewards"</em>,
+        implying that the current anniversary package is not compelling enough to bring them back.
+        Upgrading the anniversary reward to include a <strong>free limited 5★ character</strong>,
+        a <strong>limited 5★ signature weapon</strong>, or at minimum a <strong>free monthly card</strong>
+        would transform the anniversary from a retention event into a genuine win-back opportunity —
+        targeting all three churn archetypes simultaneously, especially the
+        <em>Watching &amp; Waiting (36%)</em> cohort who are still paying attention.
+      </p>
+      <div class="evidence-row">
+        <span class="ev-pill"><span class="ep-icon">📋</span> Survey: Anniversary rewards = #3 return condition for churned players</span>
+        <span class="ev-pill"><span class="ep-icon">📊</span> K-Means: Watching &amp; Waiting archetype = 36% of churned — still reachable</span>
+        <span class="ev-pill"><span class="ep-icon">🌏</span> Community: Anniversary = peak engagement spike on all 3 platforms</span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ═══════════════════════════════════════════
+       MEDIUM PRIORITY
+  ══════════════════════════════════════════════ -->
+  <div class="rec-section">
+    <span class="rec-section-icon">🟡</span>
+    <span class="rec-section-label">Medium Priority — Address Within 2–3 Versions</span>
+  </div>
+
+  <div class="rec-grid">
+
+    <!-- R4: Events at patch-end -->
+    <div class="rec-card medium">
+      <div class="rec-header">
+        <div class="rec-icon">🎪</div>
+        <div class="rec-title-block">
+          <div class="priority medium">🟡 Medium Priority</div>
+          <h3 class="rec-title">Replace Patch-End Filler Events with Innovative, Replayable Content</h3>
+        </div>
+      </div>
+      <p class="rec-body">
+        The community heatmap clearly shows <strong>engagement dropping in the final weeks of every patch cycle</strong>
+        when only rerun banners and repetitive daily commissions remain.
+        The current response — Wondrous Creatures (千星奇遇) — has been received negatively by
+        players who find it a <strong>shallow distraction rather than meaningful content</strong>.
+        The recommendation is to invest in events that have genuine replayability and variety:
+        limited co-op challenges, community-voted story fragments, or time-limited roguelike modes
+        would better sustain the engagement curve from patch launch through to the next cycle.
+        The goal is to eliminate the predictable activity cliff that currently signals to players
+        that there is "nothing to do" — one of the top self-reported reasons for taking breaks.
+      </p>
+      <div class="evidence-row">
+        <span class="ev-pill"><span class="ep-icon">🌏</span> Community Heatmap: Engagement cliff at every patch-end</span>
+        <span class="ev-pill"><span class="ep-icon">📋</span> Survey: Exploration fatigue = #2 churn reason (16 mentions)</span>
+        <span class="ev-pill"><span class="ep-icon">🤖</span> SHAP: Event participation = #1 retention predictor</span>
+        <span class="ev-pill"><span class="ep-icon">👎</span> Player signal: Wondrous Creatures received negatively in community</span>
+      </div>
+    </div>
+
+    <!-- R5: Combat diversity -->
+    <div class="rec-card medium">
+      <div class="rec-header">
+        <div class="rec-icon">⚔️</div>
+        <div class="rec-title-block">
+          <div class="priority medium">🟡 Medium Priority</div>
+          <h3 class="rec-title">Invest in Combat Design — Not Just Higher Numbers</h3>
+        </div>
+      </div>
+      <p class="rec-body">
+        Dashboard 2 of the Customer Profile analysis reveals that <strong>Combat is the lowest-rated
+        dimension of Nod-Krai</strong> across all player tenure groups — a damning finding
+        given that new characters are released every patch at considerable production cost.
+        The core problem is one of <strong>design philosophy, not content volume</strong>:
+        new characters add new damage numbers, but the underlying <em>combat loop never changes —
+        position, buff, burst, repeat</em>.
+        Veterans who have played across every region have run essentially the same Spiral Abyss
+        rotation for years, and no amount of new character kits resolves that structural monotony.
+        <br><br>
+        This is ultimately a challenge for <strong>combat designers</strong> to address at a
+        fundamental level — introducing mechanics that change <em>how</em> combat feels,
+        not just <em>what numbers appear on screen</em>.
+        Whether that takes the form of a roguelike endgame mode with dynamic modifiers,
+        version-specific combat rulesets, or entirely new interaction systems,
+        the direction needs to come from design intention rather than incremental character releases.
+      </p>
+      <div class="evidence-row">
+        <span class="ev-pill"><span class="ep-icon">📊</span> Dashboard 2: Combat = lowest-rated Nod-Krai dimension</span>
+        <span class="ev-pill"><span class="ep-icon">📋</span> Survey: Content repetition cited as churn factor</span>
+        <span class="ev-pill"><span class="ep-icon">🌏</span> Community: Combat repetition cluster in Bilibili negative sentiment</span>
+      </div>
+    </div>
+
+    <!-- R6: Co-op -->
+    <div class="rec-card medium">
+      <div class="rec-header">
+        <div class="rec-icon">👥</div>
+        <div class="rec-title-block">
+          <div class="priority medium">🟡 Medium Priority</div>
+          <h3 class="rec-title">Expand Co-op with Fun, Non-Combat Multiplayer Activities</h3>
+        </div>
+      </div>
+      <p class="rec-body">
+        SHAP analysis identifies <strong>social and community engagement as a retention factor</strong>,
+        yet Genshin's co-op system remains one of the most underdeveloped features in a game of its scale.
+        The key distinction here is intentional: the recommendation is <em>not</em> to add more combat co-op —
+        combat fatigue is already identified as a pain point.
+        Instead, the focus should be on <strong>genuinely fun, player-friendly multiplayer activities</strong>
+        that bring people together without the friction of optimised team composition:
+        <br><br>
+        • <strong>Friendly competitive mini-games</strong> — fishing competitions, treasure-hunt races,
+          instrument ensemble challenges, building contests
+        <br>
+        • <strong>Community exploration events</strong> — shared map objectives where groups of players
+          collectively unlock rewards
+        <br>
+        • <strong>Social seasonal events</strong> — themed activities during festivals that naturally
+          encourage playing with friends rather than requiring it
+        <br><br>
+        The goal is to make playing with others feel like a <em>bonus</em> rather than a chore,
+        converting solitary sessions into social experiences that give players a reason to
+        log in even when personal motivation dips.
+      </p>
+      <div class="evidence-row">
+        <span class="ev-pill"><span class="ep-icon">🤖</span> SHAP: Social engagement = retention feature</span>
+        <span class="ev-pill"><span class="ep-icon">📋</span> Survey: Community &amp; friends = retention motivator</span>
+        <span class="ev-pill"><span class="ep-icon">⚠️</span> Note: Avoid combat-heavy co-op — combat fatigue already identified</span>
+      </div>
+    </div>
+
+    <!-- R7: QoL from player feedback -->
+    <div class="rec-card medium">
+      <div class="rec-header">
+        <div class="rec-icon">🔧</div>
+        <div class="rec-title-block">
+          <div class="priority medium">🟡 Medium Priority</div>
+          <h3 class="rec-title">Systematically Implement Long-Requested QoL Improvements</h3>
+        </div>
+      </div>
+      <p class="rec-body">
+        A recurring theme across survey responses and community discussion is that
+        players feel <strong>ignored</strong> — not just dissatisfied, but specifically that
+        HoYoverse has not acted on feedback that has existed for years
+        (artifact strongbox improvements, resin overflow, skip-able cutscenes, in-game friend activity, etc.).
+        In an era where <em>Honkai: Star Rail adapts to player feedback visibly and quickly</em>,
+        Genshin's slower response cycle is itself a churn signal.
+        A structured <strong>QoL patch every other version</strong> — explicitly framed as
+        "we heard you" — would directly counter the player perception
+        that their feedback has no impact, rebuilding the trust that retains long-term players.
+      </p>
+      <div class="evidence-row">
+        <span class="ev-pill"><span class="ep-icon">📋</span> Survey: Player-requested improvements repeatedly cited</span>
+        <span class="ev-pill"><span class="ep-icon">🌏</span> Community: "Same issues never fixed" — recurring negative cluster</span>
+        <span class="ev-pill"><span class="ep-icon">⚔️</span> Competitor: HSR QoL updates cited positively in comparison threads</span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ═══════════════════════════════════════════
+       LONG-TERM STRATEGIC
+  ══════════════════════════════════════════════ -->
+  <div class="rec-section">
+    <span class="rec-section-icon">🔵</span>
+    <span class="rec-section-label">Long-Term Strategic — Plan for Next 6–12 Months</span>
+  </div>
+
+  <div class="rec-grid">
+
+    <!-- R8: Targeted win-back -->
+    <div class="rec-card low">
+      <div class="rec-header">
+        <div class="rec-icon">🎯</div>
+        <div class="rec-title-block">
+          <div class="priority low">🔵 Strategic</div>
+          <h3 class="rec-title">Targeted Win-Back Campaigns Based on Churn Archetype Segmentation</h3>
+        </div>
+      </div>
+      <p class="rec-body">
+        This study's K-Means clustering identifies three distinct churned player archetypes,
+        each requiring a different re-engagement approach:
+        <br><br>
+        <strong>Watching &amp; Waiting (~36%)</strong> — Still following the game on social media.
+        Target with <em>story spoilers, character reveals, and anniversary reminders</em>.
+        Low effort to re-engage; needs a compelling content hook.
+        <br><br>
+        <strong>Passively Churned (~41%)</strong> — Left due to time pressure, not dissatisfaction.
+        Target with <em>returning player reward bundles and resin reduction announcements</em>.
+        Most receptive to systemic improvements (Recommendations 1 &amp; 2).
+        <br><br>
+        <strong>Permanently Lost (~23%)</strong> — Left for fundamental reasons (story, gacha model).
+        Lower ROI to pursue; better to focus resources on the other two segments
+        and prevent current active players from reaching this stage.
+      </p>
+      <div class="evidence-row">
+        <span class="ev-pill"><span class="ep-icon">📊</span> K-Means: 3-archetype churn segmentation</span>
+        <span class="ev-pill"><span class="ep-icon">📋</span> Survey: Differentiated return conditions per segment</span>
+        <span class="ev-pill"><span class="ep-icon">🤖</span> ML: Continue_Score ≤ 2 = 11 at-risk active players identified</span>
+      </div>
+    </div>
+
+    <!-- R9: Story presentation -->
+    <div class="rec-card low">
+      <div class="rec-header">
+        <div class="rec-icon">📖</div>
+        <div class="rec-title-block">
+          <div class="priority low">🔵 Strategic</div>
+          <h3 class="rec-title">Improve Story Accessibility — Skip Options &amp; Alternative Narrative Formats</h3>
+        </div>
+      </div>
+      <p class="rec-body">
+        Survey data confirms that <strong>story and narrative investment is a primary retention driver</strong>
+        — players stay because they are emotionally attached to characters and lore.
+        Yet the current story delivery system has two friction points that undermine this asset:
+        <br><br>
+        <strong>① Add a proper skip/recap system.</strong>
+        Players who have already completed quests, or who return after a long absence,
+        should be able to skip or quickly recap story content without sitting through
+        the full unskippable dialogue sequence.
+        This is a basic accessibility feature that most modern narrative games include as standard.
+        <br><br>
+        <strong>② Offer richer alternative story formats for skipped content.</strong>
+        Simply skipping leaves players with no context. A better approach —
+        already demonstrated by HoYoverse themselves in Genshin's early days —
+        would be to present skipped story as a <strong>short manga panel sequence</strong>
+        (similar to Genshin's own early promotional comics) or a
+        <strong>condensed CG compilation</strong> that conveys the emotional beats
+        without requiring the full runtime.
+        This preserves narrative investment for players who want to move fast,
+        while rewarding those who engage fully with the complete version.
+        <br><br>
+        Together, these changes protect narrative as a retention asset while removing
+        the friction that currently makes returning players feel overwhelmed by content backlogs.
+      </p>
+      <div class="evidence-row">
+        <span class="ev-pill"><span class="ep-icon">📋</span> Survey: Story &amp; character design = top retention motivators</span>
+        <span class="ev-pill"><span class="ep-icon">📊</span> Dashboard 2: Veterans rate Story higher — narrative value confirmed</span>
+        <span class="ev-pill"><span class="ep-icon">🌏</span> HoYolab: Lore &amp; storyline = dominant positive discussion cluster</span>
+        <span class="ev-pill"><span class="ep-icon">💡</span> Precedent: Genshin's own early manga format proves format viability</span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ═══════════════════════════════════════════
+       COMPETITOR CONTEXT
+  ══════════════════════════════════════════════ -->
+  <hr class="section-divider">
+  <div class="section-label">Competitive Context</div>
+  <h2 class="section-title">The Urgency Behind These Recommendations</h2>
+
+  <div class="competitor-box">
+    <div class="cb-icon">⚠️</div>
+    <p>
+      Community topic modelling reveals that <strong>Wuthering Waves competitor comparison clusters</strong>
+      appeared for the first time in the Luna Arc — a signal that had not existed during Natlan.
+      Survey data confirms Wuthering Waves as <strong>the top platform absorbing churned players</strong>.
+      This study's churned player archetypes show that <strong>~77% (Watching &amp; Waiting + Passively Churned)
+      are still potentially recoverable</strong> — but that window narrows with each version
+      that delivers no meaningful systemic improvement.
+      The recommendations above are not aspirational; they are the minimum adjustments
+      needed to remain competitive against a fast-moving market where
+      <strong>Honkai: Star Rail and Zenless Zone Zero</strong> have already demonstrated
+      that HoYoverse can build more player-friendly systems when it chooses to.
+    </p>
+  </div>
+
+  <!-- ═══════════════════════════════════════════
+       SUMMARY TABLE
+  ══════════════════════════════════════════════ -->
+  <hr class="section-divider">
+  <div class="section-label">Quick Reference</div>
+  <h2 class="section-title">All Recommendations at a Glance</h2>
+
+  <div class="highlight-box" style="padding:0; overflow:hidden; border-radius:14px;">
+    <table class="summary-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Recommendation</th>
+          <th>Priority</th>
+          <th>Primary Evidence</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>1</td>
+          <td>Reduce daily resin: 160 → 120 / 90</td>
+          <td><span class="impact-high">High</span></td>
+          <td>Survey: "No time" #1 churn reason</td>
+        </tr>
+        <tr>
+          <td>2</td>
+          <td>Free 10-pull per version</td>
+          <td><span class="impact-high">High</span></td>
+          <td>Survey: Free pulls #2 desired improvement</td>
+        </tr>
+        <tr>
+          <td>3</td>
+          <td>Upgrade anniversary: free limited 5★ / monthly card</td>
+          <td><span class="impact-high">High</span></td>
+          <td>Survey: Anniversary = #3 return condition</td>
+        </tr>
+        <tr>
+          <td>4</td>
+          <td>Replace patch-end filler with innovative events</td>
+          <td><span class="impact-medium">Medium</span></td>
+          <td>Community Heatmap: Engagement cliff at patch-end</td>
+        </tr>
+        <tr>
+          <td>5</td>
+          <td>Diversify combat — roguelike / new mechanics</td>
+          <td><span class="impact-medium">Medium</span></td>
+          <td>Dashboard 2: Combat = lowest-rated dimension</td>
+        </tr>
+        <tr>
+          <td>6</td>
+          <td>Expand co-op content</td>
+          <td><span class="impact-medium">Medium</span></td>
+          <td>SHAP: Social engagement = retention factor</td>
+        </tr>
+        <tr>
+          <td>7</td>
+          <td>Systematic QoL patches every other version</td>
+          <td><span class="impact-medium">Medium</span></td>
+          <td>Community: Long-standing issues ignored</td>
+        </tr>
+        <tr>
+          <td>8</td>
+          <td>Targeted win-back by churn archetype</td>
+          <td><span class="impact-low">Strategic</span></td>
+          <td>K-Means: 3 distinct archetypes identified</td>
+        </tr>
+        <tr>
+          <td>9</td>
+          <td>Story skip button + manga/CG alternative formats</td>
+          <td><span class="impact-low">Strategic</span></td>
+          <td>Survey: Story = primary retention motivator</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div style="text-align:center; margin-top:44px; display:flex; gap:14px; justify-content:center; flex-wrap:wrap;">
+    <a href="/community" class="btn-outline">← Community Analysis</a>
+    <a href="/limitations" class="btn">Limitations &amp; Future Work →</a>
+  </div>
+
+</div>
+
+<footer>© 2025 Kelvin Kee Kwong Yew &nbsp;|&nbsp; FYP Delivery Platform &nbsp;|&nbsp; BCS23090011</footer>
+
+<script src="{{ url_for('static', filename='lightbox.js') }}"></script>
+</body>
+</html>
