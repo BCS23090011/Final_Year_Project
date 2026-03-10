@@ -203,8 +203,9 @@
         <div class="chart-caption">
           <h4>RF SHAP: Top 10 Retention Features</h4>
           <p>The 10 most important features for predicting retention. 
-          <strong>Event participation</strong> consistently ranks as the strongest signal, 
-          followed by login frequency and task completion.</p>
+          <strong>Nod-Krai Storyline Rating</strong> and <strong>Interest in Upcoming Characters</strong> 
+          rank near-equally at the top, with Nod-Krai New Characters Rating entering at #3 — 
+          confirming that content satisfaction with the latest region is a dominant retention signal.</p>
         </div>
       </div>
       <div class="chart-card">
@@ -212,9 +213,10 @@
              alt="RF SHAP top 15 retention features">
         <div class="chart-caption">
           <h4>RF SHAP: Top 15 Retention Features</h4>
-          <p>Extended view showing the top 15 features. Motivational factors 
-          (character design enjoyment, social play patterns) appear alongside 
-          behavioural engagement metrics, confirming a multi-dimensional retention structure.</p>
+          <p>Extended view of the top 15 features. <strong>Nod-Krai Storyline Rating</strong> now leads, 
+          with <strong>Age</strong> appearing as a new entry — suggesting younger or newer players 
+          have a distinct retention risk profile. "WatchMotivation: To check story updates" also enters 
+          the list, reinforcing how story-following behaviour connects to long-term intent.</p>
         </div>
       </div>
     </div>
@@ -225,9 +227,11 @@
              alt="RF SHAP signed values for retention">
         <div class="chart-caption">
           <h4>RF SHAP: Directional Attribution (Retention)</h4>
-          <p>Signed SHAP values showing feature direction. High event participation 
-          <em>increases</em> retention probability; low quest completion 
-          <em>decreases</em> it. This directional insight is critical for targeted interventions.</p>
+          <p>Signed SHAP values showing feature direction. Notably, almost all top features 
+          appear in <em>red</em> (decreasing retention probability), meaning high values in those 
+          features paradoxically push the model toward lower retention classes — driven by 
+          the ordinal target structure. Only <strong>Motivated: Collecting Characters</strong> and 
+          <strong>Quest Completion Rate</strong> show a positive (teal) direction for retention.</p>
         </div>
       </div>
       <div class="chart-card">
@@ -235,9 +239,11 @@
              alt="SHAP beeswarm plot for retention">
         <div class="chart-caption">
           <h4>SHAP Beeswarm: Retention ⭐</h4>
-          <p>The beeswarm plot reveals the full distribution of individual SHAP values. 
-          A clear separation emerges: players with high event participation and login frequency 
-          cluster at positive SHAP values, while low-engagement players cluster negatively. 
+          <p>The beeswarm plot reveals the full distribution of individual SHAP values across 
+          all 126 active players. New features appear compared to earlier views — 
+          <strong>Nod-Krai New Characters Rating</strong>, <strong>WatchMotivation: To check story updates</strong>, 
+          and <strong>Age</strong> all show meaningful spread. Players with high interest in upcoming characters 
+          and strong Nod-Krai story ratings cluster at positive (rightward) SHAP values. 
           <strong>This is the study's most informative single chart.</strong></p>
         </div>
       </div>
@@ -327,26 +333,31 @@
       <img src="{{ url_for('static', filename='images/shap/Chart_03_Model_AUC.png') }}" 
            alt="Model AUC ROC comparison">
       <div class="chart-caption">
-        <h4>Model AUC Comparison (LR vs RF)</h4>
-        <p>LR AUC = 0.708 vs RF AUC = 0.648 on the churn prediction task. 
-        LR outperforming RF is consistent with RF's known underperformance 
-        in low-dimensional feature spaces (only 5 demographic features available).</p>
+        <h4>Model Performance Summary (Churn AUC + Retention CV Accuracy)</h4>
+        <p>Three metrics displayed: Churn model LR AUC = 0.708 and RF AUC = 0.648 (binary churn task), 
+        plus the Retention Model RF 5-Fold CV Accuracy = 0.746 (multi-class). 
+        LR outperforming RF on the churn task is consistent with RF's known underperformance 
+        in low-dimensional feature spaces (only 5 demographic features). 
+        Note these metrics are not directly comparable — AUC is binary, CV Accuracy is multi-class.</p>
       </div>
     </div>
 
     <div class="chart-full">
       <img src="{{ url_for('static', filename='images/shap/Accuracy.png') }}" 
-           alt="Retention model classification report">
+           alt="Retention model classification report - test set">
       <div class="chart-caption">
-        <h4>Retention Model — Classification Report</h4>
-        <p>Overall accuracy = 0.97 (weighted F1 = 0.96). However, macro F1 = 0.79 and 
-        <strong>Class 0 (highest churn risk) F1 = 0.00</strong> — the model completely 
-        failed to identify the 2 most at-risk players due to extreme class imbalance.</p>
+        <h4>Retention Model — Classification Report (TEST Set, Out-of-Sample)</h4>
+        <p>Test-set accuracy = 0.69 on the 20% hold-out (n=26). Only classes 2, 3, and 4 appear 
+        in the test split due to small class sizes for 0 and 1. 
+        <strong>Class 2 F1 = 0.00</strong> — the model still cannot identify the higher-risk 
+        retention classes due to severe class imbalance. Class 4 (intends to continue) achieves F1 = 0.84. 
+        The 5-Fold CV accuracy of 0.746 provides a more reliable generalisation estimate than 
+        the single train/test split.</p>
       </div>
     </div>
 
     <div class="section-label" style="margin-top:36px;">Detailed Metrics</div>
-    <h3 style="font-family:'Montserrat',sans-serif; color:#FFD6E0; font-size:1.2rem; margin-bottom:16px;">Retention Model (5-Class)</h3>
+    <h3 style="font-family:'Montserrat',sans-serif; color:#FFD6E0; font-size:1.2rem; margin-bottom:16px;">Retention Model — TEST Set (20% hold-out, n=26)</h3>
 
     <table class="metric-table">
       <thead>
@@ -360,34 +371,33 @@
         </tr>
       </thead>
       <tbody>
-        <tr><td>Class 0</td><td>Highest churn risk</td><td class="bad">0.00</td><td class="bad">0.00</td><td class="bad">0.00</td><td>2</td></tr>
-        <tr><td>Class 1</td><td>High risk</td><td class="good">1.00</td><td class="good">1.00</td><td class="good">1.00</td><td>1</td></tr>
-        <tr><td>Class 2</td><td>Moderate risk</td><td class="good">1.00</td><td class="good">1.00</td><td class="good">1.00</td><td>8</td></tr>
-        <tr><td>Class 3</td><td>Low risk</td><td class="good">1.00</td><td class="warn">0.92</td><td class="good">0.96</td><td>24</td></tr>
-        <tr><td>Class 4</td><td>Intends to continue</td><td class="warn">0.96</td><td class="good">1.00</td><td class="good">0.98</td><td>91</td></tr>
+        <tr><td>Class 2</td><td>Moderate risk</td><td class="bad">0.00</td><td class="bad">0.00</td><td class="bad">0.00</td><td>3</td></tr>
+        <tr><td>Class 3</td><td>Low risk</td><td class="warn">0.50</td><td class="warn">0.29</td><td class="warn">0.36</td><td>7</td></tr>
+        <tr><td>Class 4</td><td>Intends to continue</td><td class="warn">0.73</td><td class="good">1.00</td><td class="good">0.84</td><td>16</td></tr>
         <tr style="border-top:2px solid rgba(255,255,255,0.2);">
           <td colspan="2"><strong>Accuracy</strong></td>
-          <td colspan="3" class="good"><strong>0.97</strong></td><td>126</td>
+          <td colspan="3" class="warn"><strong>0.69</strong></td><td>26</td>
         </tr>
         <tr>
           <td colspan="2">Macro Average</td>
-          <td>0.79</td><td>0.78</td><td class="warn">0.79</td><td>126</td>
+          <td class="bad">0.41</td><td class="bad">0.43</td><td class="bad">0.40</td><td>26</td>
         </tr>
         <tr>
           <td colspan="2">Weighted Average</td>
-          <td class="good">0.95</td><td class="good">0.97</td><td class="good">0.96</td><td>126</td>
+          <td class="warn">0.58</td><td class="warn">0.69</td><td class="warn">0.62</td><td>26</td>
         </tr>
       </tbody>
     </table>
 
     <div class="highlight-box">
       <p>
-        <strong>⚠️ Interpretation Warning:</strong> The 0.97 accuracy is misleading — 72% of samples are 
-        Class 4 (intending to continue), so a model biased toward the majority class scores high automatically. 
-        The <strong>macro-average F1 of 0.79</strong> is the true multi-class performance measure. 
-        Most critically, <strong>Class 0 F1 = 0.00</strong>: the model completely fails to identify 
-        the players most urgently needing intervention (n=2, too few for reliable classification). 
-        This is a direct consequence of the severe class imbalance inherent to the survey dataset.
+        <strong>⚠️ Interpretation Warning:</strong> The test-set accuracy of 0.69 reflects genuine out-of-sample 
+        generalisation (20% hold-out, n=26) — a more honest picture than the previous in-sample report. 
+        <strong>Class 2 F1 = 0.00</strong>: the model still fails to identify moderate-risk players due to 
+        extreme class imbalance (only 3 samples in test). The <strong>5-Fold CV accuracy of 0.746</strong> 
+        is the most reliable performance estimate, averaging across the full dataset. 
+        The weighted F1 of 0.62 highlights that minority classes remain the key limitation — 
+        a direct consequence of the small survey sample size.
       </p>
     </div>
   </div>
