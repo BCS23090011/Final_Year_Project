@@ -180,7 +180,7 @@ def chat():
         payload = json.dumps({
             "model":       "deepseek-chat",
             "messages":    messages,
-            "max_tokens":  700,
+            "max_tokens":  1200,
             "temperature": 0.6,
         }).encode('utf-8')
 
