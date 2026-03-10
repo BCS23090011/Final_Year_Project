@@ -13,6 +13,7 @@ body {
   background: #2C2F4F;
   color: white;
   scroll-behavior: smooth;
+  overflow-x: hidden;  /* prevent horizontal scroll pushing nav off-screen on mobile */
 }
 
 /* ---- Page Hero Banner ---- */

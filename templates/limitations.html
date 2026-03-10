@@ -108,34 +108,30 @@
 
   <!-- Limitations -->
   <div class="section-label">Known Limitations</div>
-  <h2 class="section-title">Four Acknowledged Limitations</h2>
+  <h2 class="section-title">Three Acknowledged Limitations</h2>
 
   <div class="limitation-card">
-    <h3>⚠️ Limitation 1 — Churn Model Constrained to Demographic Features Only</h3>
+    <h3>⚠️ Limitation 1 — Self-Reported Data Limits Both Model Depth and SHAP Reliability</h3>
     <p>
-      The combined churn model was constrained to five shared demographic features 
-      (age, play years, gender, friend influence) because behavioural variables such as login frequency, 
-      spending, and event participation were only collected from active players. 
-      This limited the model's predictive depth, explaining the moderate AUC scores 
-      (LR=0.708, RF=0.648) and the counterintuitive result where LR outperformed RF — 
-      a pattern consistent with RF's known underperformance on low-dimensional feature spaces.
+      The most fundamental data constraint in this study operates on two levels. 
+      First, the churned player survey did not include retrospective behavioural questions 
+      (e.g., login frequency, spending, or event participation <em>before</em> disengagement), 
+      meaning the combined churn model was restricted to five shared demographic features only 
+      (age, play years, gender, friend influence). This explains the moderate AUC scores 
+      (LR=0.708, RF=0.648) and the counterintuitive LR outperformance over RF — 
+      a pattern consistent with RF's known underperformance in low-dimensional feature spaces.
+      <br><br>
+      Second, even the retention model's behavioural features — Login Frequency, Event Participation, 
+      Quest Completion Rate — are <strong>player self-reported estimates, not objective system records</strong>. 
+      This introduces recall bias and social desirability bias, which in turn means the SHAP findings 
+      reflect <em>what players believe drives their behaviour</em>, not necessarily what the game logs 
+      would confirm. The directional insights remain valuable as hypotheses, but cannot be treated 
+      as ground truth without server-side validation.
     </p>
   </div>
 
   <div class="limitation-card">
-    <h3>⚠️ Limitation 2 — Survey Design Oversight: Missing Retrospective Behavioural Data</h3>
-    <p>
-      A limitation of the current survey design is the absence of retrospective behavioural 
-      questions for churned players (e.g., login frequency, spending, and event participation 
-      prior to disengagement). Without shared behavioural features across both groups, 
-      the combined churn model was constrained to demographic variables only. 
-      Future studies should include retrospective behavioural items in the churned player 
-      questionnaire to enable feature-aligned modelling across active and churned populations.
-    </p>
-  </div>
-
-  <div class="limitation-card">
-    <h3>⚠️ Limitation 3 — K=2 Clustering Lacks Granularity</h3>
+    <h3>⚠️ Limitation 2 — K=2 Clustering Lacks Granularity</h3>
     <p>
       Due to the limited sample size (n=126 active players) and the highly imbalanced 
       retention target (91/126 intending to continue, only 11 at-risk), K=2 was selected 
@@ -147,7 +143,7 @@
   </div>
 
   <div class="limitation-card">
-    <h3>⚠️ Limitation 4 — SOM Quality Above Ideal Thresholds</h3>
+    <h3>⚠️ Limitation 3 — SOM Quality Above Ideal Thresholds</h3>
     <p>
       The SOM produced a Quantization Error of 1.6229 and Topographic Error of 0.4206, 
       both exceeding ideal thresholds (QE &lt; 1.0, TE &lt; 0.2). This is attributable to 
@@ -218,13 +214,20 @@
   <div class="future-card">
     <h3>🚀 Priority 1 — Server-Side Log Data Integration</h3>
     <p>
-      The most significant avenue for future improvement lies in replacing survey-based 
-      self-reported data with server-side behavioural logs. Log data would provide 
-      objective, high-frequency records of login patterns, session duration, in-game spending, 
-      and event participation — eliminating self-report bias and enabling temporal feature 
-      engineering (e.g., 30-day login trend, consecutive days played). 
-      With sufficient log data, the class imbalance problem would be substantially reduced, 
-      enabling reliable identification of at-risk players and real-time churn intervention pipelines.
+      The most significant avenue for future improvement is replacing survey-based self-reported data 
+      with server-side behavioural logs. Unlike survey responses — which rely on player recall and 
+      are subject to memory bias — log data records <strong>exactly what players actually did</strong>: 
+      precise login timestamps, session durations, which events were opened vs completed, 
+      in-game spending to the exact amount, and the precise date a player went inactive.
+      <br><br>
+      This matters because it closes the gap between what players <em>say</em> influences their behaviour 
+      and what <em>actually</em> preceded their churn. For example, a player might report that 
+      "no time to play" caused them to quit — but log data may reveal their session length 
+      had been declining for 6 weeks prior, or that they stopped participating in events 
+      before they stopped logging in entirely. <strong>SHAP applied to log data would identify 
+      the true early-warning signals of churn</strong>, not just self-perceived reasons. 
+      Combined with a defined inactivity threshold (e.g., 30 consecutive days without login = churned), 
+      this would enable reliable real-time churn prediction and personalised intervention pipelines.
     </p>
   </div>
 
