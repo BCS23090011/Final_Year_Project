@@ -82,7 +82,19 @@
     .grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:22px; margin-bottom:24px; }
     .grid-3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:20px; margin-bottom:24px; }
     @media(max-width:900px) { .grid-3 { grid-template-columns:1fr 1fr; } }
-    @media(max-width:600px) { .grid-2,.grid-3 { grid-template-columns:1fr; } }
+    @media(max-width:600px) {
+      .grid-2,.grid-3 { grid-template-columns:1fr; gap:16px; }
+      .arc-header h3 { font-size:1rem; }
+      .full-card .fcap { padding:14px 16px; }
+      .full-card .fcap h4 { font-size:0.9rem; }
+      .full-card .fcap p  { font-size:0.82rem; }
+      .img-card .cap h4   { font-size:0.82rem; }
+      .img-card .cap p    { font-size:0.76rem; }
+      .insight-box { flex-direction:column; gap:8px; padding:18px 16px; }
+      .insight-box .ib-icon { font-size:1.4rem; }
+      .insight-box h4 { font-size:0.88rem; }
+      .insight-box p  { font-size:0.82rem; }
+    }
   </style>
 </head>
 <body>

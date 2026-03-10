@@ -1,13 +1,56 @@
 <nav>
   <a class="nav-brand" href="/">🎮 Genshin Churn Study</a>
-  <div class="nav-links">
-    <a href="/" class="{{ 'active' if active_page == 'home' else '' }}">Home</a>
-    <a href="/research" class="{{ 'active' if active_page == 'research' else '' }}">Research</a>
-    <a href="/methodology" class="{{ 'active' if active_page == 'methodology' else '' }}">Methodology</a>
+
+  <!-- Hamburger button (mobile only) -->
+  <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation" aria-expanded="false">
+    <span></span>
+    <span></span>
+    <span></span>
+  </button>
+
+  <!-- Nav links -->
+  <div class="nav-links" id="navLinks">
+    <a href="/"                 class="{{ 'active' if active_page == 'home'             else '' }}">Home</a>
+    <a href="/research"         class="{{ 'active' if active_page == 'research'         else '' }}">Research</a>
+    <a href="/methodology"      class="{{ 'active' if active_page == 'methodology'      else '' }}">Methodology</a>
     <a href="/customer_profile" class="{{ 'active' if active_page == 'customer_profile' else '' }}">Customer Profile</a>
-    <a href="/result" class="{{ 'active' if active_page == 'result' else '' }}">Results</a>
-    <a href="/community" class="{{ 'active' if active_page == 'community' else '' }}">Community</a>
-    <a href="/limitations" class="{{ 'active' if active_page == 'limitations' else '' }}">Limitations</a>
-    <a href="/about" class="{{ 'active' if active_page == 'about' else '' }}">About</a>
+    <a href="/result"           class="{{ 'active' if active_page == 'result'           else '' }}">Results</a>
+    <a href="/community"        class="{{ 'active' if active_page == 'community'        else '' }}">Community</a>
+    <a href="/limitations"      class="{{ 'active' if active_page == 'limitations'      else '' }}">Limitations</a>
+    <a href="/about"            class="{{ 'active' if active_page == 'about'            else '' }}">About</a>
   </div>
 </nav>
+
+<script>
+(function () {
+  var toggle = document.getElementById('navToggle');
+  var links  = document.getElementById('navLinks');
+  if (!toggle || !links) return;
+
+  // Toggle open/close
+  toggle.addEventListener('click', function (e) {
+    e.stopPropagation();
+    var isOpen = links.classList.toggle('open');
+    toggle.classList.toggle('open', isOpen);
+    toggle.setAttribute('aria-expanded', String(isOpen));
+  });
+
+  // Close when a link is tapped
+  links.querySelectorAll('a').forEach(function (a) {
+    a.addEventListener('click', function () {
+      links.classList.remove('open');
+      toggle.classList.remove('open');
+      toggle.setAttribute('aria-expanded', 'false');
+    });
+  });
+
+  // Close when tapping anywhere outside
+  document.addEventListener('click', function (e) {
+    if (!e.target.closest('nav')) {
+      links.classList.remove('open');
+      toggle.classList.remove('open');
+      toggle.setAttribute('aria-expanded', 'false');
+    }
+  });
+})();
+</script>
