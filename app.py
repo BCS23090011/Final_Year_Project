@@ -2,11 +2,51 @@ import os
 import json
 import urllib.request
 import urllib.error
+from html.parser import HTMLParser
 from flask import Flask, render_template, request, jsonify
 
 app = Flask(__name__)
 
-# ── Page routes ──────────────────────────────────────────
+
+# ════════════════════════════════════════════════════════
+#  HTML → Plain text extractor (no external dependencies)
+# ════════════════════════════════════════════════════════
+class _TextExtractor(HTMLParser):
+    """Strip all HTML tags; skip script/style blocks entirely."""
+    SKIP_TAGS = {'script', 'style', 'nav', 'footer', 'head'}
+
+    def __init__(self):
+        super().__init__()
+        self._skip  = 0
+        self.chunks = []
+
+    def handle_starttag(self, tag, attrs):
+        if tag in self.SKIP_TAGS:
+            self._skip += 1
+
+    def handle_endtag(self, tag):
+        if tag in self.SKIP_TAGS and self._skip > 0:
+            self._skip -= 1
+
+    def handle_data(self, data):
+        if self._skip == 0:
+            text = data.strip()
+            if text:
+                self.chunks.append(text)
+
+
+def _html_to_text(html: str) -> str:
+    p = _TextExtractor()
+    p.feed(html)
+    # Join chunks, collapse excess whitespace
+    raw = ' '.join(p.chunks)
+    import re
+    return re.sub(r'\s{3,}', '  ', raw).strip()
+
+
+# ════════════════════════════════════════════════════════
+#  Page routes
+# ════════════════════════════════════════════════════════
 @app.route('/')
 def home():
     return render_template('index.html', active_page='home')
@@ -43,96 +83,120 @@ def limitations():
 def about():
     return render_template('about.html', active_page='about')
 
-# ── DeepSeek Chat API route ───────────────────────────────
+
+# ════════════════════════════════════════════════════════
+#  Build full-site knowledge base at startup
+#  Uses Flask test client to render each page internally —
+#  no HTTP requests needed, works before the server starts.
+# ════════════════════════════════════════════════════════
+PAGES = [
+    ('Home',                    '/'),
+    ('Research Background',     '/research'),
+    ('Methodology',             '/methodology'),
+    ('Customer Profile',        '/customer_profile'),
+    ('Results',                 '/result'),
+    ('Community Analysis',      '/community'),
+    ('Business Recommendations','/recommendations'),
+    ('Limitations & Future Work','/limitations'),
+    ('About',                   '/about'),
+]
+
+def _build_site_knowledge() -> str:
+    """Render every page with the test client and extract its text."""
+    client   = app.test_client()
+    sections = []
+
+    for page_name, route in PAGES:
+        try:
+            resp = client.get(route)
+            html = resp.data.decode('utf-8', errors='ignore')
+            text = _html_to_text(html)
+            # Limit each page to ~1800 chars to keep total token count reasonable
+            if len(text) > 1800:
+                text = text[:1800] + '…'
+            sections.append(f'=== {page_name.upper()} ({route}) ===\n{text}')
+        except Exception as e:
+            sections.append(f'=== {page_name.upper()} ===\n[Could not extract: {e}]')
+
+    return '\n\n'.join(sections)
+
+
+# Build once at import time (Gunicorn workers share this via module-level cache)
+print('[Chatbot] Building full-site knowledge base…')
+_SITE_KNOWLEDGE = _build_site_knowledge()
+print(f'[Chatbot] Done — {len(_SITE_KNOWLEDGE):,} characters extracted across {len(PAGES)} pages.')
+
+
+# ════════════════════════════════════════════════════════
+#  DeepSeek Chat API endpoint
+# ════════════════════════════════════════════════════════
+_SYSTEM_PROMPT_TEMPLATE = """You are an AI research assistant for Kelvin Kee Kwong Yew's Final Year Project (FYP):
+"Understanding Player Behaviour and Predicting Churn in Genshin Impact"
+Submitted to UTS, supervised by Dr. Tanalachimi A/P Ganapathy. Student ID: BCS23090011.
+
+== FULL WEBSITE CONTENT (all pages) ==
+{site_knowledge}
+
+== CURRENT PAGE THE USER IS VIEWING ==
+Page: {current_page}
+---
+{page_context}
+---
+
+INSTRUCTIONS:
+- You have full knowledge of every page on this website (see above).
+- Prioritise the current page context for specific questions about what the user sees.
+- For broader questions, draw from the full site knowledge.
+- Answer accurately — if something is not in the study, say so honestly.
+- Be concise but thorough: 2–4 sentences for simple questions, more detail for complex ones.
+- Respond in the same language the user writes in (English or Chinese).
+- Be friendly and helpful, like a knowledgeable research assistant who built this study.
+"""
+
+
 @app.route('/api/chat', methods=['POST'])
 def chat():
     try:
-        data = request.get_json()
-        user_message  = data.get('message', '').strip()
-        page_context  = data.get('pageContext', '').strip()
-        history       = data.get('history', [])   # list of {role, content}
+        data         = request.get_json()
+        user_message = data.get('message', '').strip()
+        page_context = data.get('pageContext', '').strip()
+        current_page = data.get('currentPage', 'Unknown page')
+        history      = data.get('history', [])
 
         if not user_message:
             return jsonify({'error': 'Empty message'}), 400
 
         api_key = os.environ.get('DEEPSEEK_API_KEY', '')
         if not api_key:
-            return jsonify({'error': 'API key not configured'}), 500
+            return jsonify({'error': 'API key not configured on server'}), 500
 
-        # ── System prompt ────────────────────────────────
-        system_prompt = """You are an AI assistant for Kelvin Kee Kwong Yew's Final Year Project (FYP) titled:
-"Understanding Player Behaviour and Predicting Churn in Genshin Impact".
+        system_prompt = _SYSTEM_PROMPT_TEMPLATE.format(
+            site_knowledge = _SITE_KNOWLEDGE,
+            current_page   = current_page,
+            page_context   = page_context[:2000] if page_context else 'No specific context.',
+        )
 
-This is a data science / machine learning FYP submitted to UTS under supervisor Dr. Tanalachimi A/P Ganapathy.
-
-== STUDY OVERVIEW ==
-- Survey: 126 active players (171 features), 44 churned players (83 features)
-- Models used: Logistic Regression, Random Forest, K-Means clustering, SOM
-- Retention model accuracy: 0.97 (weighted F1=0.96)
-- 11 at-risk active players identified (Continue_Score ≤ 2)
-
-== KEY FINDINGS ==
-- Top retention driver: Event participation (SHAP #1) + Character design (survey: 41 mentions)
-- Top churn reason: No time to play (22) > Exploration fatigue (16) > Story not attractive (13)
-- Top return condition: Generous rewards (18), Free pulls, Anniversary improvements
-- Churn archetypes (K-Means): Watching & Waiting ~36%, Passively Churned ~41%, Permanently Lost ~23%
-- LR AUC (churn): 0.708 | RF AUC (churn): 0.648
-- SOM QE: 1.6229 (above ideal <1.0), TE: 0.4206
-
-== COMMUNITY DATA ==
-- 3 platforms: Google Play Store (EN + ZH reviews), YouTube (official + UGC), Bilibili (ZH) + HoYolab (EN)
-- Method: TF-IDF vectorisation + K-Means topic modelling + LLM post-hoc labelling
-- Key signal: Engagement drops at every patch-end cycle; Wuthering Waves competitor cluster emerged in Luna Arc
-
-== BUSINESS RECOMMENDATIONS ==
-1. Reduce daily resin: 160 → 120/90
-2. Free 10-pull per version
-3. Upgrade anniversary rewards (free limited 5★ / monthly card)
-4. Replace patch-end filler events with innovative replayable content
-5. Invest in combat design diversity (not just higher numbers)
-6. Expand co-op with non-combat fun multiplayer activities
-7. Systematic QoL improvements every other version — starting now
-8. Story skip button + manga/CG alternative formats for skipped content
-
-== CURRENT PAGE CONTEXT ==
-The user is currently viewing this page content:
----
-{page_context}
----
-
-INSTRUCTIONS:
-- Answer questions about this FYP study accurately using the knowledge above
-- Use the current page context to give more specific and relevant answers
-- If asked about something not in this study, say so honestly
-- Be concise but informative — 2-4 sentences for simple questions, more for complex ones
-- You can respond in English or Chinese depending on what language the user writes in
-- Be friendly and helpful, like a knowledgeable research assistant
-""".format(page_context=page_context[:3000] if page_context else "No specific page context provided.")
-
-        # ── Build messages ────────────────────────────────
+        # Build message list
         messages = [{"role": "system", "content": system_prompt}]
-
-        # Include last 6 history messages for context
-        for h in history[-6:]:
+        for h in history[-8:]:
             if h.get('role') in ('user', 'assistant') and h.get('content'):
                 messages.append({"role": h['role'], "content": h['content']})
-
         messages.append({"role": "user", "content": user_message})
 
-        # ── Call DeepSeek API ─────────────────────────────
+        # Call DeepSeek
         payload = json.dumps({
-            "model": "deepseek-chat",
-            "messages": messages,
-            "max_tokens": 600,
+            "model":       "deepseek-chat",
+            "messages":    messages,
+            "max_tokens":  700,
             "temperature": 0.6,
         }).encode('utf-8')
 
         req = urllib.request.Request(
             'https://api.deepseek.com/chat/completions',
-            data=payload,
-            headers={
-                'Content-Type': 'application/json',
-                'Authorization': f'Bearer {api_key}'
+            data    = payload,
+            headers = {
+                'Content-Type':  'application/json',
+                'Authorization': f'Bearer {api_key}',
             }
         )
 
@@ -144,12 +208,14 @@ INSTRUCTIONS:
 
     except urllib.error.HTTPError as e:
         err_body = e.read().decode('utf-8') if e.fp else str(e)
-        return jsonify({'error': f'DeepSeek API error: {e.code}', 'detail': err_body}), 502
+        return jsonify({'error': f'DeepSeek API error {e.code}', 'detail': err_body}), 502
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
 
-# ── Run ──────────────────────────────────────────────────
+# ════════════════════════════════════════════════════════
+#  Run
+# ════════════════════════════════════════════════════════
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
     app.run(host='0.0.0.0', port=port, debug=False)

@@ -493,6 +493,7 @@
         body: JSON.stringify({
           message:     text,
           pageContext: getPageContext(),
+          currentPage: getPageName(),
           history:     history,
         })
       });
