@@ -294,7 +294,7 @@
   // ── 2. Build DOM ──────────────────────────────────────
   document.body.insertAdjacentHTML('beforeend', `
     <!-- Floating button -->
-    <button id="cb-fab" aria-label="Open study assistant">🤖</button>
+    <button id="cb-fab" aria-label="Open study assistant"><img src="/static/images/chatbot/Paimon.png" style="width:36px;height:36px;object-fit:cover;border-radius:50%;"></button>
 
     <!-- Side panel -->
     <div id="cb-panel" role="dialog" aria-label="FYP Study Assistant">
@@ -425,13 +425,14 @@
     pageLabel.textContent = `📄 ${getPageName()}`;
     greet();
     setTimeout(() => input.focus(), 350);
+    fab.style.display = 'none';
   }
 
   function closePanel() {
     isOpen = false;
     panel.classList.remove('open');
     fab.classList.remove('open');
-    fab.innerHTML = '🤖';
+    fab.style.display = 'flex';
     fab.setAttribute('aria-label', 'Open study assistant');
   }
 
