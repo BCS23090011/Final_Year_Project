@@ -147,7 +147,6 @@ INSTRUCTIONS:
 - Be friendly and helpful, like a knowledgeable research assistant who built this study.
 """
 
-
 @app.route('/api/chat', methods=['POST'])
 def chat():
     try:
