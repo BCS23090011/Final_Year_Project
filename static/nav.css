@@ -17,6 +17,8 @@ nav {
   z-index: 1000;
   box-sizing: border-box;
   height: 58px;
+  -webkit-transform: translateZ(0);   /* ← 加这行 */
+  transform: translateZ(0);
 }
 
 /* ── Brand logo ───────────────────────────────────── */
