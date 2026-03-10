@@ -28,7 +28,6 @@
   var links  = document.getElementById('navLinks');
   if (!toggle || !links) return;
 
-  // Toggle open/close
   toggle.addEventListener('click', function (e) {
     e.stopPropagation();
     var isOpen = links.classList.toggle('open');
@@ -36,7 +35,6 @@
     toggle.setAttribute('aria-expanded', String(isOpen));
   });
 
-  // Close when a link is tapped
   links.querySelectorAll('a').forEach(function (a) {
     a.addEventListener('click', function () {
       links.classList.remove('open');
@@ -45,7 +43,6 @@
     });
   });
 
-  // Close when tapping anywhere outside
   document.addEventListener('click', function (e) {
     if (!e.target.closest('nav')) {
       links.classList.remove('open');
@@ -54,5 +51,7 @@
     }
   });
 })();
-<!-- Chatbot (loaded globally via nav) -->
+</script>
+
+<!-- Chatbot loaded globally -->
 <script src="{{ url_for('static', filename='chatbot.js') }}"></script>
