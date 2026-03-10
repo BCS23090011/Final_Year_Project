@@ -68,8 +68,8 @@
       left: 0;
       width: 360px;
       max-width: calc(100vw - 16px);
-      height: 520px;
-      max-height: calc(100vh - 80px);
+      height: calc(100vh - 72px);
+      max-height: calc(100vh - 72px);
       background: #2C2F4F;
       border: 1px solid rgba(124,131,253,0.3);
       border-radius: 20px 20px 0 0;
