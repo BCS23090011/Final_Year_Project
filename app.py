@@ -121,12 +121,6 @@ def _build_site_knowledge() -> str:
     return '\n\n'.join(sections)
 
 
-# Build once at import time (Gunicorn workers share this via module-level cache)
-print('[Chatbot] Building full-site knowledge base…')
-_SITE_KNOWLEDGE = _build_site_knowledge()
-print(f'[Chatbot] Done — {len(_SITE_KNOWLEDGE):,} characters extracted across {len(PAGES)} pages.')
-
-
 # ════════════════════════════════════════════════════════
 #  DeepSeek Chat API endpoint
 # ════════════════════════════════════════════════════════
@@ -211,6 +205,14 @@ def chat():
         return jsonify({'error': f'DeepSeek API error {e.code}', 'detail': err_body}), 502
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
+
+# ════════════════════════════════════════════════════════
+#  Build full-site knowledge base AFTER all routes registered
+# ════════════════════════════════════════════════════════
+print('[Chatbot] Building full-site knowledge base…')
+_SITE_KNOWLEDGE = _build_site_knowledge()
+print(f'[Chatbot] Done — {len(_SITE_KNOWLEDGE):,} characters extracted across {len(PAGES)} pages.')
 
 
 # ════════════════════════════════════════════════════════
