@@ -421,7 +421,6 @@
     isOpen = true;
     panel.classList.add('open');
     fab.classList.add('open');
-    fab.innerHTML = '✕';
     fab.setAttribute('aria-label', 'Close study assistant');
     pageLabel.textContent = `📄 ${getPageName()}`;
     greet();
