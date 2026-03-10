@@ -207,8 +207,74 @@ def chat():
 
 
 # ════════════════════════════════════════════════════════
-#  Build full-site knowledge base AFTER all routes registered
+#  Website Rating API
 # ════════════════════════════════════════════════════════
+RATINGS_FILE = os.path.join(os.path.dirname(__file__), 'ratings.json')
+
+def _load_ratings():
+    if os.path.exists(RATINGS_FILE):
+        try:
+            with open(RATINGS_FILE, 'r') as f:
+                return json.load(f)
+        except Exception:
+            pass
+    return {"navigation": [], "clarity": [], "design": [], "total": 0}
+
+def _save_ratings(data):
+    with open(RATINGS_FILE, 'w') as f:
+        json.dump(data, f)
+
+@app.route('/api/rate', methods=['POST'])
+def rate():
+    try:
+        data = request.get_json()
+        nav  = int(data.get('navigation', 0))
+        clar = int(data.get('clarity', 0))
+        des  = int(data.get('design', 0))
+        if not all(1 <= v <= 5 for v in [nav, clar, des]):
+            return jsonify({'error': 'Scores must be 1–5'}), 400
+        ratings = _load_ratings()
+        ratings['navigation'].append(nav)
+        ratings['clarity'].append(clar)
+        ratings['design'].append(des)
+        ratings['total'] = len(ratings['navigation'])
+        _save_ratings(ratings)
+        avg_nav  = round(sum(ratings['navigation']) / ratings['total'], 1)
+        avg_clar = round(sum(ratings['clarity'])    / ratings['total'], 1)
+        avg_des  = round(sum(ratings['design'])      / ratings['total'], 1)
+        avg_all  = round((avg_nav + avg_clar + avg_des) / 3, 1)
+        return jsonify({
+            'total': ratings['total'],
+            'avg_navigation': avg_nav,
+            'avg_clarity':    avg_clar,
+            'avg_design':     avg_des,
+            'avg_overall':    avg_all,
+        })
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/ratings', methods=['GET'])
+def get_ratings():
+    try:
+        ratings = _load_ratings()
+        total = ratings['total']
+        if total == 0:
+            return jsonify({'total': 0, 'avg_navigation': 0, 'avg_clarity': 0, 'avg_design': 0, 'avg_overall': 0})
+        avg_nav  = round(sum(ratings['navigation']) / total, 1)
+        avg_clar = round(sum(ratings['clarity'])    / total, 1)
+        avg_des  = round(sum(ratings['design'])      / total, 1)
+        avg_all  = round((avg_nav + avg_clar + avg_des) / 3, 1)
+        return jsonify({
+            'total': total,
+            'avg_navigation': avg_nav,
+            'avg_clarity':    avg_clar,
+            'avg_design':     avg_des,
+            'avg_overall':    avg_all,
+        })
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
 print('[Chatbot] Building full-site knowledge base…')
 _SITE_KNOWLEDGE = _build_site_knowledge()
 print(f'[Chatbot] Done — {len(_SITE_KNOWLEDGE):,} characters extracted across {len(PAGES)} pages.')

@@ -48,6 +48,158 @@
       line-height: 1.8;
     }
     .skill-tags { margin-top: 16px; }
+    .linkedin-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 16px;
+      background: rgba(10,102,194,0.2);
+      border: 1px solid rgba(10,102,194,0.5);
+      color: #96BAFF;
+      font-family: 'Poppins', sans-serif;
+      font-weight: 600;
+      font-size: 0.85rem;
+      padding: 9px 20px;
+      border-radius: 30px;
+      text-decoration: none;
+      transition: all 0.25s ease;
+    }
+    .linkedin-btn:hover {
+      background: rgba(10,102,194,0.4);
+      border-color: #96BAFF;
+      color: #fff;
+      transform: translateY(-2px);
+    }
+    /* Thank you banner */
+    .thankyou-banner {
+      background: linear-gradient(135deg, rgba(124,131,253,0.12), rgba(255,214,224,0.08));
+      border: 1px solid rgba(124,131,253,0.3);
+      border-radius: 20px;
+      padding: 44px 40px;
+      text-align: center;
+      margin: 48px 0;
+    }
+    .thankyou-banner .big-emoji { font-size: 3rem; margin-bottom: 12px; }
+    .thankyou-banner h2 {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 1.6rem;
+      color: #FFD6E0;
+      margin: 0 0 12px;
+    }
+    .thankyou-banner p {
+      color: #C0C8FF;
+      font-size: 0.97rem;
+      line-height: 1.8;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    .respondent-count {
+      display: inline-block;
+      background: linear-gradient(135deg, #7C83FD, #96BAFF);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 3rem;
+      font-weight: 800;
+      margin: 16px 0 4px;
+    }
+    /* Rating widget */
+    .rating-widget {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(124,131,253,0.2);
+      border-radius: 20px;
+      padding: 44px 40px;
+      margin-top: 48px;
+      text-align: center;
+    }
+    .rating-widget h2 {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 1.4rem;
+      color: #FFD6E0;
+      margin: 0 0 8px;
+    }
+    .rating-widget .subtext {
+      color: #8890C0;
+      font-size: 0.9rem;
+      margin-bottom: 36px;
+    }
+    .rating-question {
+      margin-bottom: 32px;
+    }
+    .rating-question p {
+      color: #C0C8FF;
+      font-size: 0.97rem;
+      margin-bottom: 12px;
+    }
+    .stars {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+    }
+    .star {
+      font-size: 2rem;
+      cursor: pointer;
+      transition: transform 0.15s ease, filter 0.15s ease;
+      filter: grayscale(1) opacity(0.4);
+      user-select: none;
+    }
+    .star:hover, .star.active {
+      filter: grayscale(0) opacity(1);
+      transform: scale(1.2);
+    }
+    .submit-rating-btn {
+      background: linear-gradient(135deg, #7C83FD, #96BAFF);
+      color: white;
+      font-family: 'Poppins', sans-serif;
+      font-weight: 600;
+      font-size: 0.95rem;
+      border: none;
+      padding: 13px 40px;
+      border-radius: 30px;
+      cursor: pointer;
+      margin-top: 12px;
+      transition: all 0.25s ease;
+      box-shadow: 0 4px 16px rgba(124,131,253,0.3);
+    }
+    .submit-rating-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(124,131,253,0.45);
+    }
+    .rating-thanks {
+      display: none;
+      animation: fadeIn 0.5s ease;
+    }
+    .rating-thanks .big-tick { font-size: 3.5rem; margin-bottom: 12px; }
+    .rating-thanks h3 {
+      font-family: 'Montserrat', sans-serif;
+      color: #7DF7A0;
+      font-size: 1.3rem;
+      margin-bottom: 8px;
+    }
+    .rating-thanks p { color: #C0C8FF; font-size: 0.95rem; }
+    .score-display {
+      display: flex;
+      justify-content: center;
+      gap: 32px;
+      flex-wrap: wrap;
+      margin-top: 20px;
+    }
+    .score-item { text-align: center; }
+    .score-item .score-val {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 2.2rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, #7C83FD, #96BAFF);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .score-item .score-label { font-size: 0.8rem; color: #8890C0; margin-top: 4px; }
+    @keyframes fadeIn { from { opacity:0; transform: translateY(10px); } to { opacity:1; transform: translateY(0); } }
+    @media (max-width: 600px) {
+      .rating-widget { padding: 28px 20px; }
+      .thankyou-banner { padding: 32px 20px; }
+      .about-hero-card { padding: 28px 20px; }
+    }
   </style>
 </head>
 <body>
@@ -83,6 +235,10 @@
         <span class="tag">NLP</span>
         <span class="tag">Data Analytics</span>
       </div>
+      <a href="https://www.linkedin.com/in/kee-kwong-yew-kelvin-661067376/" target="_blank" class="linkedin-btn">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+        Connect on LinkedIn
+      </a>
     </div>
   </div>
 
@@ -162,7 +318,182 @@
     <a href="/methodology" class="btn">View Methodology →</a>
   </div>
 
+  <hr class="section-divider">
+
+  <!-- Thank You to Respondents -->
+  <div class="thankyou-banner">
+    <div class="big-emoji">🙏</div>
+    <h2>A Note of Gratitude</h2>
+    <div class="respondent-count">170</div>
+    <p style="margin-top:0;">
+      This research would not exist without the <strong style="color:#FFD6E0;">170 Genshin Impact players</strong> 
+      who took the time to fill in my Google Form survey — active players and churned players alike. 
+      Every data point, every honest answer about why you left or why you stayed, 
+      made this analysis possible. Thank you for your time. 🎮
+    </p>
+  </div>
+
+  <!-- Rating Widget -->
+  <div class="rating-widget">
+    <h2>⭐ Rate This Website</h2>
+    <p class="subtext">Takes 10 seconds — your feedback genuinely helps!</p>
+
+    <div id="ratingForm">
+      <div class="rating-question">
+        <p>🧭 How easy was the website to navigate?</p>
+        <div class="stars" id="stars1">
+          <span class="star" data-group="1" data-val="1">⭐</span>
+          <span class="star" data-group="1" data-val="2">⭐</span>
+          <span class="star" data-group="1" data-val="3">⭐</span>
+          <span class="star" data-group="1" data-val="4">⭐</span>
+          <span class="star" data-group="1" data-val="5">⭐</span>
+        </div>
+      </div>
+
+      <div class="rating-question">
+        <p>📊 How clear was the research information presented?</p>
+        <div class="stars" id="stars2">
+          <span class="star" data-group="2" data-val="1">⭐</span>
+          <span class="star" data-group="2" data-val="2">⭐</span>
+          <span class="star" data-group="2" data-val="3">⭐</span>
+          <span class="star" data-group="2" data-val="4">⭐</span>
+          <span class="star" data-group="2" data-val="5">⭐</span>
+        </div>
+      </div>
+
+      <div class="rating-question">
+        <p>🎨 How would you rate the overall design?</p>
+        <div class="stars" id="stars3">
+          <span class="star" data-group="3" data-val="1">⭐</span>
+          <span class="star" data-group="3" data-val="2">⭐</span>
+          <span class="star" data-group="3" data-val="3">⭐</span>
+          <span class="star" data-group="3" data-val="4">⭐</span>
+          <span class="star" data-group="3" data-val="5">⭐</span>
+        </div>
+      </div>
+
+      <button class="submit-rating-btn" onclick="submitRating()">Submit Rating →</button>
+      <p id="ratingError" style="color:#FFB3B3; font-size:0.85rem; margin-top:10px; display:none;">
+        Please rate all three questions before submitting!
+      </p>
+    </div>
+
+    <div class="rating-thanks" id="ratingThanks">
+      <div class="big-tick">✅</div>
+      <h3>Thank you for your feedback!</h3>
+      <p id="ratingSubtext">Your ratings have been recorded.</p>
+      <div class="score-display" id="scoreDisplay"></div>
+    </div>
+  </div>
+
 </div>
+
+<script>
+  const ratings = { 1: 0, 2: 0, 3: 0 };
+
+  // On load — if already rated, fetch latest avg and show
+  window.addEventListener('DOMContentLoaded', () => {
+    if (localStorage.getItem('websiteRated')) {
+      fetch('/api/ratings')
+        .then(r => r.json())
+        .then(data => showThanks(data, false))
+        .catch(() => showThanks(null, false));
+    }
+  });
+
+  document.querySelectorAll('.star').forEach(star => {
+    star.addEventListener('click', () => {
+      const group = parseInt(star.dataset.group);
+      const val   = parseInt(star.dataset.val);
+      ratings[group] = val;
+      document.querySelectorAll(`.star[data-group="${group}"]`).forEach(s => {
+        s.classList.toggle('active', parseInt(s.dataset.val) <= val);
+      });
+    });
+    star.addEventListener('mouseover', () => {
+      const group = parseInt(star.dataset.group);
+      const val   = parseInt(star.dataset.val);
+      document.querySelectorAll(`.star[data-group="${group}"]`).forEach(s => {
+        s.style.filter = parseInt(s.dataset.val) <= val
+          ? 'grayscale(0) opacity(1)' : 'grayscale(1) opacity(0.3)';
+      });
+    });
+    star.addEventListener('mouseout', () => {
+      const group = parseInt(star.dataset.group);
+      document.querySelectorAll(`.star[data-group="${group}"]`).forEach(s => {
+        s.style.filter = s.classList.contains('active')
+          ? 'grayscale(0) opacity(1)' : 'grayscale(1) opacity(0.4)';
+      });
+    });
+  });
+
+  function submitRating() {
+    if (!ratings[1] || !ratings[2] || !ratings[3]) {
+      document.getElementById('ratingError').style.display = 'block';
+      return;
+    }
+    fetch('/api/rate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ navigation: ratings[1], clarity: ratings[2], design: ratings[3] })
+    })
+    .then(r => r.json())
+    .then(data => {
+      localStorage.setItem('websiteRated', '1');
+      showThanks(data, true);
+    })
+    .catch(() => {
+      localStorage.setItem('websiteRated', '1');
+      showThanks(null, true);
+    });
+  }
+
+  function showThanks(data, justSubmitted) {
+    document.getElementById('ratingForm').style.display = 'none';
+    const thanks = document.getElementById('ratingThanks');
+    thanks.style.display = 'block';
+
+    document.querySelector('#ratingThanks h3').textContent = justSubmitted
+      ? 'Thank you for your feedback!'
+      : "You've already rated this website!";
+
+    if (data && data.total > 0) {
+      document.getElementById('ratingSubtext').innerHTML =
+        `Based on <strong style="color:#FFD6E0">${data.total}</strong> ${data.total === 1 ? 'rating' : 'ratings'} — here's what visitors think:`;
+      document.getElementById('scoreDisplay').innerHTML = `
+        <div class="score-item">
+          <div class="score-val">${data.avg_navigation}</div>
+          <div style="font-size:1.1rem">${starBar(data.avg_navigation)}</div>
+          <div class="score-label">🧭 Navigation</div>
+        </div>
+        <div class="score-item">
+          <div class="score-val">${data.avg_clarity}</div>
+          <div style="font-size:1.1rem">${starBar(data.avg_clarity)}</div>
+          <div class="score-label">📊 Clarity</div>
+        </div>
+        <div class="score-item">
+          <div class="score-val">${data.avg_design}</div>
+          <div style="font-size:1.1rem">${starBar(data.avg_design)}</div>
+          <div class="score-label">🎨 Design</div>
+        </div>
+        <div class="score-item">
+          <div class="score-val" style="font-size:2.8rem">${data.avg_overall}</div>
+          <div style="font-size:1.1rem">${starBar(data.avg_overall)}</div>
+          <div class="score-label">✨ Overall</div>
+        </div>
+      `;
+    } else {
+      document.getElementById('ratingSubtext').textContent = 'Your rating has been recorded.';
+    }
+  }
+
+  function starBar(score) {
+    const full  = Math.floor(score);
+    const half  = (score - full) >= 0.5 ? 1 : 0;
+    const empty = 5 - full - half;
+    return '⭐'.repeat(full) + (half ? '✨' : '') + '🌑'.repeat(empty);
+  }
+</script>
 
 <footer>© 2025 Kelvin Kee Kwong Yew &nbsp;|&nbsp; FYP Delivery Platform &nbsp;|&nbsp; BCS23090011</footer>
 <script src="{{ url_for('static', filename='lightbox.js') }}"></script>
