@@ -209,7 +209,7 @@ def chat():
 # ════════════════════════════════════════════════════════
 #  Website Rating API
 # ════════════════════════════════════════════════════════
-RATINGS_FILE = os.path.join(os.path.dirname(__file__), 'ratings.json')
+RATINGS_FILE = '/opt/render/project/src/data/ratings.json'
 
 def _load_ratings():
     if os.path.exists(RATINGS_FILE):
