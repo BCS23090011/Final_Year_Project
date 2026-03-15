@@ -156,8 +156,12 @@ def _fetch_github_content() -> str:
             req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
             with urllib.request.urlopen(req, timeout=10) as resp:
                 content = resp.read().decode('utf-8', errors='ignore')
-                if len(content) > 3000:
-                    content = content[:3000] + '…'
+
+                # md 文件给多一点，py 文件给少一点
+                limit = 5000 if url.endswith('.md') else 3000
+                if len(content) > limit:
+                    content = content[:limit] + '…'
+
                 filename = url.split('/')[-1]
                 sections.append(f'=== GITHUB: {filename} ===\n{content}')
                 print(f'[GitHub] ✅ {filename} ({len(content)} chars)')
