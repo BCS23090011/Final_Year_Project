@@ -157,7 +157,7 @@ def _fetch_github_content() -> str:
             with urllib.request.urlopen(req, timeout=60) as resp:
                 content = resp.read().decode('utf-8', errors='ignore')
 
-                limit = 5000 if url.endswith('.md') else 3000
+                limit = 10000 if url.endswith('.md') else 6500
                 if len(content) > limit:
                     content = content[:limit] + '…'
 
