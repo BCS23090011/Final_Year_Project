@@ -154,9 +154,9 @@ def _fetch_github_content() -> str:
     for url in GITHUB_FILES:
         try:
             req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
-            with urllib.request.urlopen(req, timeout=10) as resp:
+            with urllib.request.urlopen(req, timeout=60) as resp:
                 content = resp.read().decode('utf-8', errors='ignore')
-                
+
                 limit = 5000 if url.endswith('.md') else 3000
                 if len(content) > limit:
                     content = content[:limit] + '…'
