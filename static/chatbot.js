@@ -487,6 +487,9 @@
     sendBtn.disabled = true;
 
     try {
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 130000); // 130秒
+
       const resp = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -495,9 +498,11 @@
           pageContext: getPageContext(),
           currentPage: getPageName(),
           history:     history,
-        })
+        }),
+        signal: controller.signal,
       });
 
+      clearTimeout(timeout);
       const data = await resp.json();
       typingEl.remove();
 
@@ -512,7 +517,11 @@
       }
     } catch (err) {
       typingEl.remove();
-      addMessage('bot', '⚠️ Connection error. Please check your internet and try again.');
+      if (err.name === 'AbortError') {
+        addMessage('bot', '⚠️ Request timed out. Please try a simpler question.');
+      } else {
+        addMessage('bot', '⚠️ Connection error. Please check your internet and try again.');
+      }
     }
 
     isLoading = false;
