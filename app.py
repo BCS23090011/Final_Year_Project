@@ -111,9 +111,9 @@ def _build_site_knowledge() -> str:
             resp = client.get(route)
             html = resp.data.decode('utf-8', errors='ignore')
             text = _html_to_text(html)
-            # Limit each page to ~1800 chars to keep total token count reasonable
-            if len(text) > 1800:
-                text = text[:1800] + '…'
+            # Limit each page to ~3000 chars to keep total token count reasonable
+            if len(text) > 3000:
+                text = text[:3000] + '…'
             sections.append(f'=== {page_name.upper()} ({route}) ===\n{text}')
         except Exception as e:
             sections.append(f'=== {page_name.upper()} ===\n[Could not extract: {e}]')
