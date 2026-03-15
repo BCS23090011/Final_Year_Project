@@ -241,11 +241,22 @@ def chat():
             }
         )
 
-        with urllib.request.urlopen(req, timeout=30) as resp:
-            result_data = json.loads(resp.read().decode('utf-8'))
+        # Call DeepSeek with retry
+        last_error = None
+        for attempt in range(2):  # 最多试2次
+            try:
+                with urllib.request.urlopen(req, timeout=60) as resp:
+                    result_data = json.loads(resp.read().decode('utf-8'))
+                reply = result_data['choices'][0]['message']['content']
+                return jsonify({'reply': reply})
+            except Exception as e:
+                last_error = e
+                if attempt == 0:
+                    print(f'[Chat] Retry after error: {e}')
+                    import time
+                    time.sleep(2)  # 等2秒再retry
 
-        reply = result_data['choices'][0]['message']['content']
-        return jsonify({'reply': reply})
+        raise last_error
 
     except urllib.error.HTTPError as e:
         err_body = e.read().decode('utf-8') if e.fp else str(e)
