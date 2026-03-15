@@ -122,6 +122,51 @@ def _build_site_knowledge() -> str:
 
 
 # ════════════════════════════════════════════════════════
+#  Fetch GitHub repository content
+# ════════════════════════════════════════════════════════
+GITHUB_FILES = [
+    # README
+    'https://raw.githubusercontent.com/BCS23090011/genshin-churn-analysis/main/README.md',
+    
+    # Docs
+    'https://raw.githubusercontent.com/BCS23090011/genshin-churn-analysis/main/docs/01_feature_engineering.md',
+    'https://raw.githubusercontent.com/BCS23090011/genshin-churn-analysis/main/docs/02_generate_longformat.md',
+    'https://raw.githubusercontent.com/BCS23090011/genshin-churn-analysis/main/docs/03_analysis_with_shap.md',
+    'https://raw.githubusercontent.com/BCS23090011/genshin-churn-analysis/main/docs/04_clustering_analysis.md',
+    'https://raw.githubusercontent.com/BCS23090011/genshin-churn-analysis/main/docs/05_community_analysis.md',
+    'https://raw.githubusercontent.com/BCS23090011/genshin-churn-analysis/main/docs/06_YT_Official.md',
+    'https://raw.githubusercontent.com/BCS23090011/genshin-churn-analysis/main/docs/07_Community_ytdlp.md',
+    'https://raw.githubusercontent.com/BCS23090011/genshin-churn-analysis/main/docs/08_Bilibili_Video_Scraping.md',
+    'https://raw.githubusercontent.com/BCS23090011/genshin-churn-analysis/main/docs/09_google_play_review.md',
+    'https://raw.githubusercontent.com/BCS23090011/genshin-churn-analysis/main/docs/10_selenium_B_and_H.md',
+
+    # Python scripts 
+    'https://raw.githubusercontent.com/BCS23090011/genshin-churn-analysis/main/Analysis/analysis_with_shap.py',
+    'https://raw.githubusercontent.com/BCS23090011/genshin-churn-analysis/main/Analysis/clustering_analysis.py',
+    'https://raw.githubusercontent.com/BCS23090011/genshin-churn-analysis/main/Community_analysis/community_analysis.py',
+    'https://raw.githubusercontent.com/BCS23090011/genshin-churn-analysis/main/Data_Preprocessing_Excel/feature_engineering.py',
+    'https://raw.githubusercontent.com/BCS23090011/genshin-churn-analysis/main/Data_Preprocessing_Excel/generate_longformat.py',
+    
+]
+
+def _fetch_github_content() -> str:
+    sections = []
+    for url in GITHUB_FILES:
+        try:
+            req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
+            with urllib.request.urlopen(req, timeout=10) as resp:
+                content = resp.read().decode('utf-8', errors='ignore')
+                if len(content) > 3000:
+                    content = content[:3000] + '…'
+                filename = url.split('/')[-1]
+                sections.append(f'=== GITHUB: {filename} ===\n{content}')
+                print(f'[GitHub] ✅ {filename} ({len(content)} chars)')
+        except Exception as e:
+            print(f'[GitHub] ❌ Failed {url}: {e}')
+    return '\n\n'.join(sections)
+
+
+# ════════════════════════════════════════════════════════
 #  DeepSeek Chat API endpoint
 # ════════════════════════════════════════════════════════
 _SYSTEM_PROMPT_TEMPLATE = """You are an AI research assistant for Kelvin Kee Kwong Yew's Final Year Project (FYP):
@@ -277,7 +322,9 @@ def get_ratings():
 
 print('[Chatbot] Building full-site knowledge base…')
 _SITE_KNOWLEDGE = _build_site_knowledge()
-print(f'[Chatbot] Done — {len(_SITE_KNOWLEDGE):,} characters extracted across {len(PAGES)} pages.')
+print('[Chatbot] Fetching GitHub content…')
+_SITE_KNOWLEDGE = _SITE_KNOWLEDGE + '\n\n' + _fetch_github_content()
+print(f'[Chatbot] Done — {len(_SITE_KNOWLEDGE):,} characters total.')
 
 
 # ════════════════════════════════════════════════════════
