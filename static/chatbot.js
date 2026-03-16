@@ -503,8 +503,17 @@
       });
 
       clearTimeout(timeout);
-      const data = await resp.json();
-      typingEl.remove();
+
+        if (!resp.ok) {
+            typingEl.remove();
+            addMessage('bot', `⚠️ Server error (${resp.status}). Please try again later.`);
+            isLoading = false;
+            sendBtn.disabled = false;
+            return;
+            }
+
+          const data = await resp.json();
+          typingEl.remove();
 
       if (data.reply) {
         addMessage('bot', data.reply);
