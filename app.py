@@ -245,7 +245,7 @@ def chat():
         last_error = None
         for attempt in range(2):  # 最多试2次
             try:
-                with urllib.request.urlopen(req, timeout=60) as resp:
+                with urllib.request.urlopen(req, timeout=65) as resp:
                     result_data = json.loads(resp.read().decode('utf-8'))
                 reply = result_data['choices'][0]['message']['content']
                 return jsonify({'reply': reply})
