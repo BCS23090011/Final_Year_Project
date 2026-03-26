@@ -98,7 +98,7 @@
         <div class="chart-caption">
           <h4>K Selection (Elbow Method)</h4>
           <p>The Elbow Method was used to determine the optimal number of clusters. 
-          K=2 was selected for both active and churned datasets, representing the 
+          K=2 was selected for the active dataset, while K=1 was retained for the churned dataset due to the smaller sample size (n=44), representing the 
           High Engagement vs Lower Engagement distinction.</p>
         </div>
       </div>
@@ -119,10 +119,10 @@
         <img src="{{ url_for('static', filename='images/kmeans/Chart03_Churn_KMeans.png') }}" 
              alt="Churned player K-Means clustering">
         <div class="chart-caption">
-          <h4>Churned Player K-Means (K=2)</h4>
-          <p>Two distinct churned player segments emerge: one with higher return potential 
-          (still engaged with game content externally) and one with complete disengagement. 
-          Aligns with the three-archetype classification.</p>
+          <h4>Churned Player Churn Reasons (K=1)</h4>
+          <p>Due to the small churned sample (n=44), K resolved to 1 — producing a 
+            global churn reason prevalence profile rather than distinct sub-clusters.No Time to Play (59.1%) is the most prevalent reason, followed by 
+            Exploration Feels Tiring and Rewards Not Worth the Effort (both 47.7%).</p>
         </div>
       </div>
       <div class="chart-card">
