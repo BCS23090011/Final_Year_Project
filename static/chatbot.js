@@ -197,21 +197,31 @@
     .cb-msg.bot  .cb-msg-icon { background: rgba(124,131,253,0.2); }
     .cb-msg.user .cb-msg-icon { background: rgba(255,214,224,0.2); }
 
-    /* Typing indicator */
-    .cb-typing .cb-bubble {
-      display: flex; gap: 5px; align-items: center;
-      padding: 12px 16px;
+    /* ── Thinking progress indicator ── */
+    .cb-thinking {
+      display: flex; flex-direction: column; gap: 6px;
+      padding: 10px 13px; min-width: 210px;
     }
-    .cb-dot-anim {
-      width: 6px; height: 6px;
-      background: #7C83FD; border-radius: 50%;
-      animation: cb-bounce 1.2s ease-in-out infinite;
+    .cb-think-header {
+      display: flex; align-items: center; justify-content: space-between;
     }
-    .cb-dot-anim:nth-child(2) { animation-delay: 0.2s; }
-    .cb-dot-anim:nth-child(3) { animation-delay: 0.4s; }
-    @keyframes cb-bounce {
-      0%,80%,100% { transform: translateY(0); opacity:0.5; }
-      40%          { transform: translateY(-5px); opacity:1; }
+    .cb-think-phase {
+      color: #96BAFF; font-style: italic; font-size: 0.76rem;
+      transition: opacity 0.4s ease;
+    }
+    .cb-think-timer {
+      color: rgba(255,255,255,0.3);
+      font-family: 'Courier New', monospace; font-size: 0.72rem;
+    }
+    .cb-think-bar-wrap {
+      width: 100%; height: 3px;
+      background: rgba(255,255,255,0.08); border-radius: 2px; overflow: hidden;
+    }
+    .cb-think-bar {
+      height: 100%; border-radius: 2px;
+      background: linear-gradient(90deg, #7C83FD, #96BAFF);
+      transition: width 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+      width: 0%;
     }
 
     /* Suggested questions */
@@ -452,7 +462,16 @@
     bubble.className = 'cb-bubble';
 
     if (isTyping) {
-      bubble.innerHTML = '<div class="cb-dot-anim"></div><div class="cb-dot-anim"></div><div class="cb-dot-anim"></div>';
+      bubble.innerHTML = `
+        <div class="cb-thinking">
+          <div class="cb-think-header">
+            <span class="cb-think-phase" id="cb-think-phase">Reading context…</span>
+            <span class="cb-think-timer" id="cb-think-timer">0s</span>
+          </div>
+          <div class="cb-think-bar-wrap">
+            <div class="cb-think-bar" id="cb-think-bar"></div>
+          </div>
+        </div>`;
     } else {
       // Simple markdown-ish: bold **text**, newlines
       bubble.innerHTML = text
@@ -486,6 +505,40 @@
     isLoading = true;
     sendBtn.disabled = true;
 
+    // ── Thinking progress animation ──
+    const phases = [
+      { label: 'Reading context…',        pct: 12,  delay: 0    },
+      { label: 'Searching thesis…',       pct: 28,  delay: 1200 },
+      { label: 'Analysing findings…',     pct: 48,  delay: 3000 },
+      { label: 'Cross-referencing…',      pct: 65,  delay: 6000 },
+      { label: 'Formulating answer…',     pct: 80,  delay: 10000},
+      { label: 'Almost there…',           pct: 92,  delay: 18000},
+    ];
+    const thinkBar   = document.getElementById('cb-think-bar');
+    const thinkPhase = document.getElementById('cb-think-phase');
+    const thinkTimer = document.getElementById('cb-think-timer');
+    const startTime  = Date.now();
+    const phaseTimers = [];
+
+    // Timer tick every second
+    const timerInterval = setInterval(() => {
+      if (thinkTimer) thinkTimer.textContent = `${Math.floor((Date.now() - startTime) / 1000)}s`;
+    }, 1000);
+
+    // Schedule phase transitions
+    phases.forEach(({ label, pct, delay }) => {
+      const t = setTimeout(() => {
+        if (thinkPhase) thinkPhase.textContent = label;
+        if (thinkBar)   thinkBar.style.width   = pct + '%';
+      }, delay);
+      phaseTimers.push(t);
+    });
+
+    function clearThinkingUI() {
+      clearInterval(timerInterval);
+      phaseTimers.forEach(clearTimeout);
+    }
+
     try {
       const controller = new AbortController();
       const timeout = setTimeout(() => controller.abort(), 120000); // 120秒
@@ -505,7 +558,7 @@
       clearTimeout(timeout);
 
       if (!resp.ok) {
-        typingEl.remove();
+        clearThinkingUI(); typingEl.remove();
         addMessage('bot', `⚠️ Server error (${resp.status}). Please try again later.`);
         isLoading = false;
         sendBtn.disabled = false;
@@ -513,7 +566,7 @@
       }
 
       // ── Streaming: replace typing indicator with live bubble ──
-      typingEl.remove();
+      clearThinkingUI(); typingEl.remove();
       const botDiv = document.createElement('div');
       botDiv.className = 'cb-msg bot';
       const icon = document.createElement('div');
@@ -568,7 +621,7 @@
       }
 
     } catch (err) {
-      typingEl.remove();
+      clearThinkingUI(); typingEl.remove();
       if (err.name === 'AbortError') {
         addMessage('bot', '⚠️ Request timed out. Please try a simpler question.');
       } else {
