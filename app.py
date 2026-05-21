@@ -226,7 +226,7 @@ def chat():
 
         # Streaming payload
         payload = json.dumps({
-            "model":       "deepseek-v4-pro",
+            "model":       "deepseek-v4-flash",
             "messages":    messages,
             "max_tokens":  4096,
             "temperature": 0.6,
