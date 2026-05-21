@@ -3,7 +3,7 @@ import json
 import urllib.request
 import urllib.error
 from html.parser import HTMLParser
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, Response, stream_with_context
 
 app = Flask(__name__)
 
@@ -224,12 +224,13 @@ def chat():
                 messages.append({"role": h['role'], "content": h['content']})
         messages.append({"role": "user", "content": user_message})
 
-        # Call DeepSeek
+        # Streaming payload
         payload = json.dumps({
-            "model":       "deepseek-v4-pro",
+            "model":       "deepseek-chat",
             "messages":    messages,
             "max_tokens":  1800,
             "temperature": 0.6,
+            "stream":      True,
         }).encode('utf-8')
 
         req = urllib.request.Request(
@@ -241,26 +242,36 @@ def chat():
             }
         )
 
-        # Call DeepSeek with retry
-        last_error = None
-        for attempt in range(2):  # 最多试2次
+        def generate():
             try:
-                with urllib.request.urlopen(req, timeout=65) as resp:
-                    result_data = json.loads(resp.read().decode('utf-8'))
-                reply = result_data['choices'][0]['message']['content']
-                return jsonify({'reply': reply})
+                with urllib.request.urlopen(req, timeout=120) as resp:
+                    for raw_line in resp:
+                        line = raw_line.decode('utf-8').strip()
+                        if not line or not line.startswith('data:'):
+                            continue
+                        json_str = line[5:].strip()
+                        if json_str == '[DONE]':
+                            break
+                        try:
+                            chunk = json.loads(json_str)
+                            token = chunk['choices'][0].get('delta', {}).get('content', '')
+                            if token:
+                                yield f'data: {json.dumps({"token": token})}\n\n'
+                        except Exception:
+                            continue
+                yield 'data: [DONE]\n\n'
             except Exception as e:
-                last_error = e
-                if attempt == 0:
-                    print(f'[Chat] Retry after error: {e}')
-                    import time
-                    time.sleep(2)  # 等2秒再retry
+                yield f'data: {json.dumps({"error": str(e)})}\n\n'
 
-        raise last_error
+        return Response(
+            stream_with_context(generate()),
+            mimetype='text/event-stream',
+            headers={
+                'Cache-Control':    'no-cache',
+                'X-Accel-Buffering': 'no',
+            }
+        )
 
-    except urllib.error.HTTPError as e:
-        err_body = e.read().decode('utf-8') if e.fp else str(e)
-        return jsonify({'error': f'DeepSeek API error {e.code}', 'detail': err_body}), 502
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 

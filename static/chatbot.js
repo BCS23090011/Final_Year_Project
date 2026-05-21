@@ -488,7 +488,7 @@
 
     try {
       const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), 130000); // 130秒
+      const timeout = setTimeout(() => controller.abort(), 120000); // 120秒
 
       const resp = await fetch('/api/chat', {
         method: 'POST',
@@ -504,26 +504,69 @@
 
       clearTimeout(timeout);
 
-        if (!resp.ok) {
-            typingEl.remove();
-            addMessage('bot', `⚠️ Server error (${resp.status}). Please try again later.`);
-            isLoading = false;
-            sendBtn.disabled = false;
-            return;
-            }
-
-          const data = await resp.json();
-          typingEl.remove();
-
-      if (data.reply) {
-        addMessage('bot', data.reply);
-        history.push({ role: 'user',      content: text });
-        history.push({ role: 'assistant', content: data.reply });
-        // Keep history manageable
-        if (history.length > 12) history = history.slice(-12);
-      } else {
-        addMessage('bot', '⚠️ Sorry, I couldn\'t get a response. Please try again.');
+      if (!resp.ok) {
+        typingEl.remove();
+        addMessage('bot', `⚠️ Server error (${resp.status}). Please try again later.`);
+        isLoading = false;
+        sendBtn.disabled = false;
+        return;
       }
+
+      // ── Streaming: replace typing indicator with live bubble ──
+      typingEl.remove();
+      const botDiv = document.createElement('div');
+      botDiv.className = 'cb-msg bot';
+      const icon = document.createElement('div');
+      icon.className = 'cb-msg-icon';
+      icon.textContent = '🎮';
+      const bubble = document.createElement('div');
+      bubble.className = 'cb-bubble';
+      botDiv.appendChild(icon);
+      botDiv.appendChild(bubble);
+      messages.appendChild(botDiv);
+
+      const reader = resp.body.getReader();
+      const decoder = new TextDecoder();
+      let fullReply = '';
+      let buffer = '';
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split('\n');
+        buffer = lines.pop(); // keep incomplete line
+
+        for (const line of lines) {
+          if (!line.startsWith('data:')) continue;
+          const jsonStr = line.slice(5).trim();
+          if (jsonStr === '[DONE]') break;
+          try {
+            const chunk = JSON.parse(jsonStr);
+            if (chunk.error) {
+              bubble.innerHTML = `⚠️ ${chunk.error}`;
+              break;
+            }
+            if (chunk.token) {
+              fullReply += chunk.token;
+              // Render markdown-ish formatting live
+              bubble.innerHTML = fullReply
+                .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                .replace(/\n/g, '<br>');
+              messages.scrollTop = messages.scrollHeight;
+            }
+          } catch (e) { /* skip malformed chunks */ }
+        }
+      }
+
+      if (fullReply) {
+        history.push({ role: 'user',      content: text });
+        history.push({ role: 'assistant', content: fullReply });
+        if (history.length > 12) history = history.slice(-12);
+      }
+
     } catch (err) {
       typingEl.remove();
       if (err.name === 'AbortError') {
