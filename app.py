@@ -226,7 +226,7 @@ def chat():
 
         # Call DeepSeek
         payload = json.dumps({
-            "model":       "deepseek-chat",
+            "model":       "deepseek-v4-pro",
             "messages":    messages,
             "max_tokens":  1800,
             "temperature": 0.6,
