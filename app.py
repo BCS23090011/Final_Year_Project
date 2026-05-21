@@ -345,10 +345,88 @@ def get_ratings():
         return jsonify({'error': str(e)}), 500
 
 
+# ════════════════════════════════════════════════════════
+#  Load FYP Thesis (PDF → text, key sections only)
+#  Priority: Abstract → Ch1 Intro → Ch5 Conclusion → full body
+# ════════════════════════════════════════════════════════
+def _load_thesis(pdf_path: str) -> str:
+    """Extract key sections from the thesis PDF using pdftotext."""
+    import subprocess, tempfile, os
+
+    if not os.path.exists(pdf_path):
+        print(f'[Thesis] ⚠️  File not found: {pdf_path}')
+        return ''
+
+    try:
+        # Extract full text via pdftotext
+        with tempfile.NamedTemporaryFile(suffix='.txt', delete=False) as tmp:
+            tmp_path = tmp.name
+
+        subprocess.run(
+            ['pdftotext', '-layout', pdf_path, tmp_path],
+            check=True, capture_output=True
+        )
+        full_text = open(tmp_path, encoding='utf-8', errors='ignore').read()
+        os.unlink(tmp_path)
+        lines = full_text.split('\n')
+
+        # ── Find key section start lines ──
+        abstract_start = ch1_start = ch2_start = ch3_start = ch4_start = ch5_start = None
+        for i, line in enumerate(lines):
+            s = line.strip()
+            if 'ABSTRACT' in s and abstract_start is None and i > 50:
+                abstract_start = i
+            if 'CHAPTER 1' in s and ch1_start is None:
+                ch1_start = i
+            if 'CHAPTER 2' in s and ch2_start is None:
+                ch2_start = i
+            if 'CHAPTER 3' in s and ch3_start is None:
+                ch3_start = i
+            if 'CHAPTER 4' in s and ch4_start is None:
+                ch4_start = i
+            if 'CHAPTER 5' in s and ch5_start is None:
+                ch5_start = i
+
+        def grab(start, n):
+            if start is None:
+                return ''
+            return '\n'.join(lines[start: start + n]).strip()
+
+        # Priority sections — most important first
+        sections = [
+            ('THESIS ABSTRACT',               grab(abstract_start, 100)),
+            ('CHAPTER 1 — INTRODUCTION',      grab(ch1_start,      350)),
+            ('CHAPTER 5 — CONCLUSION & FUTURE WORK', grab(ch5_start, 500)),
+            ('CHAPTER 2 — LITERATURE REVIEW (summary)', grab(ch2_start, 250)),
+            ('CHAPTER 3 — METHODOLOGY (summary)',       grab(ch3_start, 250)),
+            ('CHAPTER 4 — RESULTS (summary)',           grab(ch4_start, 300)),
+        ]
+
+        combined = '\n\n'.join(
+            f'=== {title} ===\n{body}'
+            for title, body in sections if body
+        )
+
+        print(f'[Thesis] ✅ Loaded — {len(combined):,} chars (~{len(combined)//4:,} tokens)')
+        return combined
+
+    except FileNotFoundError:
+        print('[Thesis] ⚠️  pdftotext not found — install poppler-utils')
+        return ''
+    except Exception as e:
+        print(f'[Thesis] ❌ Error: {e}')
+        return ''
+
+
 print('[Chatbot] Building full-site knowledge base…')
 _SITE_KNOWLEDGE = _build_site_knowledge()
 print('[Chatbot] Fetching GitHub content…')
 _SITE_KNOWLEDGE = _SITE_KNOWLEDGE + '\n\n' + _fetch_github_content()
+print('[Chatbot] Loading thesis PDF…')
+_THESIS_KNOWLEDGE = _load_thesis('thesis.pdf')   # ← put thesis.pdf in your repo root
+if _THESIS_KNOWLEDGE:
+    # Thesis goes FIRST — highest priority for the chatbot
+    _SITE_KNOWLEDGE = '== FYP THESIS (PRIMARY SOURCE) ==\n' + _THESIS_KNOWLEDGE + '\n\n' + _SITE_KNOWLEDGE
 print(f'[Chatbot] Done — {len(_SITE_KNOWLEDGE):,} characters total.')
 
 

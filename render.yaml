@@ -1,0 +1,9 @@
+services:
+  - type: web
+    name: kelvinportfolio
+    runtime: python
+    buildCommand: "apt-get install -y poppler-utils && pip install -r requirements.txt"
+    startCommand: "gunicorn app:app"
+    envVars:
+      - key: DEEPSEEK_API_KEY
+        sync: false
